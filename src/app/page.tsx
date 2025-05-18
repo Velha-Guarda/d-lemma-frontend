@@ -1,7 +1,6 @@
 // page.tsx
 import { Button } from "@/components/ui/button";
-import { Github, Users, BookOpen, LucideMessageSquare } from "lucide-react";
-import Image from "next/image";
+import { Users, BookOpen, LucideMessageSquare } from "lucide-react";
 
 export default function Home() {
   return (
@@ -57,7 +56,7 @@ export default function Home() {
                   </div>
                 </div>
                 <p className="text-sm text-gray-700 mb-4">
-                  "Uma empresa de tecnologia desenvolve um algoritmo que pode prever condições médicas com 95% de precisão antes dos sintomas aparecerem. Quem deve ter acesso a essa informação e quais as implicações éticas?"
+                  &ldquo;Uma empresa de tecnologia desenvolve um algoritmo que pode prever condições médicas com 95% de precisão antes dos sintomas aparecerem. Quem deve ter acesso a essa informação e quais as implicações éticas?&rdquo;
                 </p>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">12 participantes</span>
@@ -129,7 +128,7 @@ export default function Home() {
                   <span className="text-blue-600 font-bold">2</span>
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold mb-2">Metodologia "Caixa de Pandora"</h3>
+                  <h3 className="text-xl font-semibold mb-2">Metodologia &ldquo;Caixa de Pandora&rdquo;</h3>
                   <p className="text-gray-600">Sistema único de seleção aleatória de dilemas éticos, trazendo diversidade de temas a cada rodada de discussão.</p>
                 </div>
               </div>
@@ -177,7 +176,7 @@ export default function Home() {
                       <div className="w-8 h-8 rounded-full bg-purple-200 flex items-center justify-center text-xs font-bold">AT</div>
                       <div className="bg-gray-100 rounded-lg p-3 text-sm max-w-xs">
                         <p className="font-semibold text-xs text-gray-600 mb-1">Ana Teixeira - Filosofia</p>
-                        <p>Interessante considerarmos o princípio da autonomia aqui. Quem realmente "possui" essa informação?</p>
+                        <p>Interessante considerarmos o princípio da autonomia aqui. Quem realmente &ldquo;possui&rdquo; essa informação?</p>
                       </div>
                     </div>
                   </div>
@@ -192,7 +191,7 @@ export default function Home() {
       <section id="methodology" className="py-20 bg-white">
         <div className="container">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Metodologia "Caixa de Pandora"</h2>
+            <h2 className="text-3xl font-bold mb-4">Metodologia &ldquo;Caixa de Pandora&rdquo;</h2>
             <p className="text-lg text-gray-600">
               Nossa abordagem única para seleção de dilemas éticos traz imprevisibilidade e diversidade às discussões, estimulando o pensamento crítico e a capacidade de adaptação.
             </p>
@@ -216,7 +215,7 @@ export default function Home() {
                 <div className="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold shrink-0">2</div>
                 <div>
                   <h3 className="font-semibold mb-1">Seleção aleatória</h3>
-                  <p className="text-sm text-gray-600">A cada rodada, o sistema escolhe aleatoriamente um dilema da "Caixa de Pandora" para ser discutido pelos participantes.</p>
+                  <p className="text-sm text-gray-600">A cada rodada, o sistema escolhe aleatoriamente um dilema da &ldquo;Caixa de Pandora&rdquo; para ser discutido pelos participantes.</p>
                 </div>
               </li>
               

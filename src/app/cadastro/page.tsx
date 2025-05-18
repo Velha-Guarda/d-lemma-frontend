@@ -8,7 +8,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
-import { Form, FormControl, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Form, FormControl, FormItem, FormMessage } from "@/components/ui/form"
 import { User, Mail, Lock, GraduationCap } from "lucide-react"
 
 export default function CadastroPage() {
