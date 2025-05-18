@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormItem, FormMessage } from "@/components/ui/form"
 import { Mail, Lock } from "lucide-react"
 
-export default function LoginPage() {
+function LoginFormContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [formData, setFormData] = useState({
@@ -67,7 +67,7 @@ export default function LoginPage() {
     setIsSubmitting(true)
     
     try {
-      // Simulação de login (substituir pea chamada da API)
+      // Simulação de login (substituir pela chamada da API)
       await new Promise(resolve => setTimeout(resolve, 1000))
       
       // Redirecionar para a página inicial após login bem-sucedido
@@ -197,5 +197,15 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">
+      <p className="text-lg">Carregando...</p>
+    </div>}>
+      <LoginFormContent />
+    </Suspense>
   )
 } 
