@@ -11,9 +11,12 @@ import { Select } from "@/components/ui/select"
 import { Form, FormControl, FormItem, FormMessage } from "@/components/ui/form"
 import { User, Mail, Lock, GraduationCap } from "lucide-react"
 
+import { cadastrarUsuario } from "@/lib/api"
+import { CadastroUsuario } from "@/types/usuario"
+
 export default function CadastroPage() {
   const router = useRouter()
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CadastroUsuario>({
     nome: "",
     email: "",
     senha: "",
@@ -75,18 +78,27 @@ export default function CadastroPage() {
     setIsSubmitting(true)
     
     try {
-      // Simulação de cadastro (substituir por chamada API depois de pronto o backend)
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Usa a função do serviço API para fazer o cadastro
+      const data = await cadastrarUsuario(formData);
+      console.log("Usuário cadastrado com sucesso:", data);
       
       // Redirecionar para a página de login após cadastro com sucesso
-      router.push("/login?cadastro=success")
+      router.push("/login?cadastro=success");
     } catch (error) {
-      console.error("Erro ao cadastrar:", error)
-      setErrors({
-        form: "Ocorreu um erro ao tentar cadastrar. Tente novamente."
-      })
+      console.error("Erro ao cadastrar:", error);
+      
+      // Verifica se é um erro específico da API
+      if (error instanceof Error) {
+        setErrors({
+          form: error.message || "Ocorreu um erro ao tentar cadastrar. Tente novamente."
+        });
+      } else {
+        setErrors({
+          form: "Ocorreu um erro de conexão. Verifique sua internet e tente novamente."
+        });
+      }
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
   }
 
