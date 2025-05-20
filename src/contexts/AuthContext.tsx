@@ -2,7 +2,7 @@
 
 import { createContext, useContext, ReactNode, useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Usuario, AuthResponse } from "@/types/usuario"
+import { Usuario } from "@/types/usuario"
 import { loginUsuario, isAutenticado, logout } from "@/lib/api"
 
 type AuthContextType = {
@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const userData = JSON.parse(userDataString)
             setUser(userData)
           }
-        } catch (err) {
+        } catch {
           // Se houver erro, faz logout
           logout()
         } finally {
@@ -49,29 +49,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
   
   // Função para normalizar os dados do usuário
-  function normalizeUserData(data: any): Usuario {
+  function normalizeUserData(data: Usuario | Record<string, unknown>): Usuario {
     // Se a resposta tiver a estrutura { user: {...}, token: "..." }
-    if (data.user && data.token) {
+    if ('user' in data && 'token' in data && typeof data.user === 'object') {
+      const user = data.user as Record<string, unknown>;
       return {
-        id: data.user.id,
-        nome: data.user.name || data.user.nome,
-        name: data.user.name,
-        email: data.user.email,
-        graduation: data.user.graduation,
-        role: data.user.role || "STUDENT",
-        token: data.token
+        id: user.id as string | number,
+        nome: (user.name as string) || (user.nome as string),
+        name: user.name as string,
+        email: user.email as string,
+        graduation: user.graduation as string,
+        role: (user.role as string) || "STUDENT",
+        token: data.token as string
       };
     }
     
     // Se a resposta for o próprio usuário
     return {
-      id: data.id,
-      nome: data.name || data.nome,
-      name: data.name,
-      email: data.email,
-      graduation: data.graduation,
-      role: data.role || "STUDENT",
-      token: data.token
+      id: data.id as string | number,
+      nome: (data.name as string) || (data.nome as string),
+      name: data.name as string,
+      email: data.email as string,
+      graduation: data.graduation as string,
+      role: (data.role as string) || "STUDENT",
+      token: data.token as string
     };
   }
   

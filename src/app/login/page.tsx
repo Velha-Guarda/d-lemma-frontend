@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, Suspense } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -12,7 +12,6 @@ import { Mail, Lock } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 
 function LoginFormContent() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const { login, isLoading: authLoading, error: authError } = useAuth()
   

@@ -7,7 +7,7 @@ export const API_MODE = process.env.NEXT_PUBLIC_API_MODE || "proxy";
 // URL base para o proxy local
 export const PROXY_URL = "/api/proxy"; 
 
-import { CadastroUsuario, Usuario, AuthResponse } from "@/types/usuario";
+import { CadastroUsuario, Usuario } from "@/types/usuario";
 
 // Função utilitária para determinar a URL base
 function getApiUrl(endpoint: string): string {
@@ -46,7 +46,7 @@ export async function cadastrarUsuario(dados: CadastroUsuario): Promise<Usuario>
     try {
       const errorData = await response.json();
       throw new Error(errorData.message || "Erro ao cadastrar usuário");
-    } catch (e) {
+    } catch {
       // Se não conseguir analisar a resposta como JSON
       const text = await response.text().catch(() => "");
       console.error("Resposta não-JSON:", text);
