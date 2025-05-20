@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/contexts/theme-context";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const poppins = Poppins({ 
   subsets: ["latin"],
@@ -33,7 +34,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
