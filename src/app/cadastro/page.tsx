@@ -15,6 +15,31 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { cadastrarUsuario } from "@/lib/api"
 import { CadastroUsuario } from "@/types/usuario"
 
+// Adicionar estilos customizados com alta especificidade
+const selectStyles = `
+  select {
+    background-color: white !important;
+    color: #1e293b !important;
+    appearance: none;
+    padding-left: 2.5rem;
+    width: 100%;
+    height: 40px;
+    border-radius: 0.375rem;
+    border: 1px solid #e2e8f0;
+  }
+  
+  select option {
+    background-color: white !important;
+    color: #1e293b !important;
+    padding: 8px;
+  }
+  
+  select:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+`
+
 export default function CadastroPage() {
   const router = useRouter()
   const [formData, setFormData] = useState<CadastroUsuario>({
@@ -122,6 +147,9 @@ export default function CadastroPage() {
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center py-12 text-white">
+      {/* Adicionar estilos CSS customizados */}
+      <style jsx global>{selectStyles}</style>
+      
       {/* Background image */}
       <div className="absolute inset-0 z-0">
         <Image 
@@ -228,58 +256,66 @@ export default function CadastroPage() {
               <FormItem>
                 <FormControl>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 z-10">
                       <GraduationCap className="h-5 w-5" />
                     </div>
-                    <Select
+                    <select
                       name="instituicao"
                       value={formData.graduation}
                       onChange={handleChange}
-                      className="border-gray-300 bg-white pl-10 text-slate-800 appearance-none"
+                      style={{
+                        backgroundColor: 'white',
+                        color: '#1e293b',
+                        paddingLeft: '2.5rem',
+                        width: '100%',
+                        height: '40px',
+                        borderRadius: '0.375rem',
+                        border: '1px solid #e2e8f0'
+                      }}
                     >
-                      <option value="" disabled className="text-gray-500">Curso de graduação</option>
-                      <option value="ciencia_computacao">Ciência da Computação</option>
-                      <option value="engenharia_software">Engenharia de Software</option>
-                      <option value="sistemas_informacao">Sistemas de Informação</option>
-                      <option value="analise_sistemas">Análise e Desenvolvimento de Sistemas</option>
-                      <option value="engenharia_computacao">Engenharia da Computação</option>
-                      <option value="direito">Direito</option>
-                      <option value="medicina">Medicina</option>
-                      <option value="enfermagem">Enfermagem</option>
-                      <option value="fisioterapia">Fisioterapia</option>
-                      <option value="psicologia">Psicologia</option>
-                      <option value="nutricao">Nutrição</option>
-                      <option value="farmacia">Farmácia</option>
-                      <option value="odontologia">Odontologia</option>
-                      <option value="engenharia_civil">Engenharia Civil</option>
-                      <option value="engenharia_mecanica">Engenharia Mecânica</option>
-                      <option value="engenharia_eletrica">Engenharia Elétrica</option>
-                      <option value="engenharia_quimica">Engenharia Química</option>
-                      <option value="administracao">Administração</option>
-                      <option value="economia">Economia</option>
-                      <option value="contabilidade">Ciências Contábeis</option>
-                      <option value="pedagogia">Pedagogia</option>
-                      <option value="letras">Letras</option>
-                      <option value="historia">História</option>
-                      <option value="geografia">Geografia</option>
-                      <option value="arquitetura">Arquitetura e Urbanismo</option>
-                      <option value="design">Design</option>
-                      <option value="jornalismo">Jornalismo</option>
-                      <option value="publicidade">Publicidade e Propaganda</option>
-                      <option value="agronomia">Agronomia</option>
-                      <option value="veterinaria">Medicina Veterinária</option>
-                      <option value="zootecnia">Zootecnia</option>
-                      <option value="biologia">Ciências Biológicas</option>
-                      <option value="fisica">Física</option>
-                      <option value="quimica">Química</option>
-                      <option value="matematica">Matemática</option>
-                      <option value="estatistica">Estatística</option>
-                      <option value="gestao_ambiental">Gestão Ambiental</option>
-                      <option value="turismo">Turismo</option>
-                      <option value="gastronomia">Gastronomia</option>
-                      <option value="educacao_fisica">Educação Física</option>
-                      <option value="outras">Outras graduações</option>
-                    </Select>
+                      <option value="" disabled style={{backgroundColor: 'white', color: '#94a3b8'}}>Curso de graduação</option>
+                      <option value="ciencia_computacao" style={{backgroundColor: 'white', color: '#1e293b'}}>Ciência da Computação</option>
+                      <option value="engenharia_software" style={{backgroundColor: 'white', color: '#1e293b'}}>Engenharia de Software</option>
+                      <option value="sistemas_informacao" style={{backgroundColor: 'white', color: '#1e293b'}}>Sistemas de Informação</option>
+                      <option value="analise_sistemas" style={{backgroundColor: 'white', color: '#1e293b'}}>Análise e Desenvolvimento de Sistemas</option>
+                      <option value="engenharia_computacao" style={{backgroundColor: 'white', color: '#1e293b'}}>Engenharia da Computação</option>
+                      <option value="direito" style={{backgroundColor: 'white', color: '#1e293b'}}>Direito</option>
+                      <option value="medicina" style={{backgroundColor: 'white', color: '#1e293b'}}>Medicina</option>
+                      <option value="enfermagem" style={{backgroundColor: 'white', color: '#1e293b'}}>Enfermagem</option>
+                      <option value="fisioterapia" style={{backgroundColor: 'white', color: '#1e293b'}}>Fisioterapia</option>
+                      <option value="psicologia" style={{backgroundColor: 'white', color: '#1e293b'}}>Psicologia</option>
+                      <option value="nutricao" style={{backgroundColor: 'white', color: '#1e293b'}}>Nutrição</option>
+                      <option value="farmacia" style={{backgroundColor: 'white', color: '#1e293b'}}>Farmácia</option>
+                      <option value="odontologia" style={{backgroundColor: 'white', color: '#1e293b'}}>Odontologia</option>
+                      <option value="engenharia_civil" style={{backgroundColor: 'white', color: '#1e293b'}}>Engenharia Civil</option>
+                      <option value="engenharia_mecanica" style={{backgroundColor: 'white', color: '#1e293b'}}>Engenharia Mecânica</option>
+                      <option value="engenharia_eletrica" style={{backgroundColor: 'white', color: '#1e293b'}}>Engenharia Elétrica</option>
+                      <option value="engenharia_quimica" style={{backgroundColor: 'white', color: '#1e293b'}}>Engenharia Química</option>
+                      <option value="administracao" style={{backgroundColor: 'white', color: '#1e293b'}}>Administração</option>
+                      <option value="economia" style={{backgroundColor: 'white', color: '#1e293b'}}>Economia</option>
+                      <option value="contabilidade" style={{backgroundColor: 'white', color: '#1e293b'}}>Ciências Contábeis</option>
+                      <option value="pedagogia" style={{backgroundColor: 'white', color: '#1e293b'}}>Pedagogia</option>
+                      <option value="letras" style={{backgroundColor: 'white', color: '#1e293b'}}>Letras</option>
+                      <option value="historia" style={{backgroundColor: 'white', color: '#1e293b'}}>História</option>
+                      <option value="geografia" style={{backgroundColor: 'white', color: '#1e293b'}}>Geografia</option>
+                      <option value="arquitetura" style={{backgroundColor: 'white', color: '#1e293b'}}>Arquitetura e Urbanismo</option>
+                      <option value="design" style={{backgroundColor: 'white', color: '#1e293b'}}>Design</option>
+                      <option value="jornalismo" style={{backgroundColor: 'white', color: '#1e293b'}}>Jornalismo</option>
+                      <option value="publicidade" style={{backgroundColor: 'white', color: '#1e293b'}}>Publicidade e Propaganda</option>
+                      <option value="agronomia" style={{backgroundColor: 'white', color: '#1e293b'}}>Agronomia</option>
+                      <option value="veterinaria" style={{backgroundColor: 'white', color: '#1e293b'}}>Medicina Veterinária</option>
+                      <option value="zootecnia" style={{backgroundColor: 'white', color: '#1e293b'}}>Zootecnia</option>
+                      <option value="biologia" style={{backgroundColor: 'white', color: '#1e293b'}}>Ciências Biológicas</option>
+                      <option value="fisica" style={{backgroundColor: 'white', color: '#1e293b'}}>Física</option>
+                      <option value="quimica" style={{backgroundColor: 'white', color: '#1e293b'}}>Química</option>
+                      <option value="matematica" style={{backgroundColor: 'white', color: '#1e293b'}}>Matemática</option>
+                      <option value="estatistica" style={{backgroundColor: 'white', color: '#1e293b'}}>Estatística</option>
+                      <option value="gestao_ambiental" style={{backgroundColor: 'white', color: '#1e293b'}}>Gestão Ambiental</option>
+                      <option value="turismo" style={{backgroundColor: 'white', color: '#1e293b'}}>Turismo</option>
+                      <option value="gastronomia" style={{backgroundColor: 'white', color: '#1e293b'}}>Gastronomia</option>
+                      <option value="educacao_fisica" style={{backgroundColor: 'white', color: '#1e293b'}}>Educação Física</option>
+                      <option value="outras" style={{backgroundColor: 'white', color: '#1e293b'}}>Outras graduações</option>
+                    </select>
                   </div>
                 </FormControl>
                 {errors.instituicao && <FormMessage>{errors.instituicao}</FormMessage>}
