@@ -9,10 +9,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormItem, FormMessage } from "@/components/ui/form"
 import { Mail, Lock } from "lucide-react"
+import { useAuth } from "@/contexts/AuthContext"
 
 function LoginFormContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { login, isLoading: authLoading, error: authError } = useAuth()
+  
   const [formData, setFormData] = useState({
     email: "",
     senha: ""
@@ -27,6 +30,13 @@ function LoginFormContent() {
       setSuccessMessage("Cadastro realizado com sucesso! Faça login para continuar.")
     }
   }, [searchParams])
+  
+  // Atualiza erros quando houver erro de autenticação
+  useEffect(() => {
+    if (authError) {
+      setErrors({ form: authError })
+    }
+  }, [authError])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -67,16 +77,12 @@ function LoginFormContent() {
     setIsSubmitting(true)
     
     try {
-      // Simulação de login (substituir pela chamada da API)
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Redirecionar para a página inicial após login bem-sucedido
-      router.push("/dashboard")
+      // Usar a função de login do contexto de autenticação
+      await login(formData.email, formData.senha)
+      // Não precisa redirecionar aqui, o contexto já faz isso
     } catch (error) {
       console.error("Erro ao fazer login:", error)
-      setErrors({
-        form: "Email ou senha incorretos. Verifique suas credenciais."
-      })
+      // Erros de autenticação são tratados pelo useEffect que monitora authError
     } finally {
       setIsSubmitting(false)
     }
@@ -187,9 +193,9 @@ function LoginFormContent() {
                 <Button 
                   className="w-60 bg-[#091429] text-white hover:bg-[#091429]/90"
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || authLoading}
                 >
-                  {isSubmitting ? "ENTRANDO..." : "ENTRAR"}
+                  {isSubmitting || authLoading ? "ENTRANDO..." : "ENTRAR"}
                 </Button>
               </div>
             </Form>

@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
 import { Form, FormControl, FormItem, FormMessage } from "@/components/ui/form"
 import { User, Mail, Lock, GraduationCap } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
 
 import { cadastrarUsuario } from "@/lib/api"
 import { CadastroUsuario } from "@/types/usuario"
@@ -17,17 +18,27 @@ import { CadastroUsuario } from "@/types/usuario"
 export default function CadastroPage() {
   const router = useRouter()
   const [formData, setFormData] = useState<CadastroUsuario>({
-    nome: "",
+    name: "",
     email: "",
-    senha: "",
-    instituicao: ""
+    password: "",
+    graduation: "",
+    role: "STUDENT"
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
+    // Mapeamento dos nomes dos campos para as propriedades do estado
+    const fieldMapping: Record<string, string> = {
+      nome: 'name',
+      senha: 'password',
+      instituicao: 'graduation',
+      email: 'email'
+    }
+    
+    const stateField = fieldMapping[name] || name
+    setFormData(prev => ({ ...prev, [stateField]: value }))
     
     // Limpar erro deste campo quando o usuário começa a digitar novamente
     if (errors[name]) {
@@ -43,7 +54,7 @@ export default function CadastroPage() {
     const newErrors: Record<string, string> = {}
     
     // Validar nome
-    if (!formData.nome.trim()) {
+    if (!formData.name.trim()) {
       newErrors.nome = "Nome é obrigatório"
     }
     
@@ -55,14 +66,14 @@ export default function CadastroPage() {
     }
     
     // Validar instituição
-    if (!formData.instituicao) {
+    if (!formData.graduation) {
       newErrors.instituicao = "Selecione uma instituição"
     }
     
     // Validar senha
-    if (!formData.senha) {
+    if (!formData.password) {
       newErrors.senha = "Senha é obrigatória"
-    } else if (formData.senha.length < 6) {
+    } else if (formData.password.length < 6) {
       newErrors.senha = "A senha deve ter pelo menos 6 caracteres"
     }
     
@@ -100,6 +111,13 @@ export default function CadastroPage() {
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  const handleCheckboxChange = (checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      role: checked ? "PROFESSOR" : "STUDENT"
+    }))
   }
 
   return (
@@ -160,7 +178,7 @@ export default function CadastroPage() {
                     <Input
                       placeholder="Nome"
                       name="nome"
-                      value={formData.nome}
+                      value={formData.name}
                       onChange={handleChange}
                       className="border-gray-300 bg-white pl-10 text-slate-800 placeholder:text-gray-400"
                     />
@@ -198,7 +216,7 @@ export default function CadastroPage() {
                       placeholder="Senha"
                       name="senha"
                       type="password"
-                      value={formData.senha}
+                      value={formData.password}
                       onChange={handleChange}
                       className="border-gray-300 bg-white pl-10 text-slate-800 placeholder:text-gray-400"
                     />
@@ -215,17 +233,72 @@ export default function CadastroPage() {
                     </div>
                     <Select
                       name="instituicao"
-                      value={formData.instituicao}
+                      value={formData.graduation}
                       onChange={handleChange}
                       className="border-gray-300 bg-white pl-10 text-slate-800 appearance-none"
                     >
                       <option value="" disabled className="text-gray-500">Curso de graduação</option>
-                      <option value="uesb">Universidade Estadual do Sudoeste da Bahia</option>
-                      <option value="outras">Outras instituições</option>
+                      <option value="ciencia_computacao">Ciência da Computação</option>
+                      <option value="engenharia_software">Engenharia de Software</option>
+                      <option value="sistemas_informacao">Sistemas de Informação</option>
+                      <option value="analise_sistemas">Análise e Desenvolvimento de Sistemas</option>
+                      <option value="engenharia_computacao">Engenharia da Computação</option>
+                      <option value="direito">Direito</option>
+                      <option value="medicina">Medicina</option>
+                      <option value="enfermagem">Enfermagem</option>
+                      <option value="fisioterapia">Fisioterapia</option>
+                      <option value="psicologia">Psicologia</option>
+                      <option value="nutricao">Nutrição</option>
+                      <option value="farmacia">Farmácia</option>
+                      <option value="odontologia">Odontologia</option>
+                      <option value="engenharia_civil">Engenharia Civil</option>
+                      <option value="engenharia_mecanica">Engenharia Mecânica</option>
+                      <option value="engenharia_eletrica">Engenharia Elétrica</option>
+                      <option value="engenharia_quimica">Engenharia Química</option>
+                      <option value="administracao">Administração</option>
+                      <option value="economia">Economia</option>
+                      <option value="contabilidade">Ciências Contábeis</option>
+                      <option value="pedagogia">Pedagogia</option>
+                      <option value="letras">Letras</option>
+                      <option value="historia">História</option>
+                      <option value="geografia">Geografia</option>
+                      <option value="arquitetura">Arquitetura e Urbanismo</option>
+                      <option value="design">Design</option>
+                      <option value="jornalismo">Jornalismo</option>
+                      <option value="publicidade">Publicidade e Propaganda</option>
+                      <option value="agronomia">Agronomia</option>
+                      <option value="veterinaria">Medicina Veterinária</option>
+                      <option value="zootecnia">Zootecnia</option>
+                      <option value="biologia">Ciências Biológicas</option>
+                      <option value="fisica">Física</option>
+                      <option value="quimica">Química</option>
+                      <option value="matematica">Matemática</option>
+                      <option value="estatistica">Estatística</option>
+                      <option value="gestao_ambiental">Gestão Ambiental</option>
+                      <option value="turismo">Turismo</option>
+                      <option value="gastronomia">Gastronomia</option>
+                      <option value="educacao_fisica">Educação Física</option>
+                      <option value="outras">Outras graduações</option>
                     </Select>
                   </div>
                 </FormControl>
                 {errors.instituicao && <FormMessage>{errors.instituicao}</FormMessage>}
+              </FormItem>
+
+              {/* Checkbox: Sou professor */}
+              <FormItem>
+                <FormControl>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="professor"
+                      checked={formData.role === "PROFESSOR"}
+                      onCheckedChange={handleCheckboxChange}
+                    />
+                    <label htmlFor="professor" className="text-white text-sm">
+                      Sou professor
+                    </label>
+                  </div>
+                </FormControl>
               </FormItem>
               
               {errors.form && <FormMessage className="text-center">{errors.form}</FormMessage>}

@@ -9,17 +9,18 @@ export interface CadastroUsuario {
 
 // Interface para dados do usuário após login
 export interface Usuario {
-  id: number;
-  nome: string;
+  id: string | number;
+  nome?: string;
+  name?: string; // API pode retornar name em vez de nome
   email: string;
   graduation: string;
   role: string; // ex: 'ALUNO', 'PROFESSOR', 'ADMIN'
-  token: string;
+  token?: string;
 }
 
 // Interface para resposta de autenticação
 export interface AuthResponse {
-  usuario: Usuario;
+  user: Usuario;
   token: string;
   refreshToken?: string;
 } 
