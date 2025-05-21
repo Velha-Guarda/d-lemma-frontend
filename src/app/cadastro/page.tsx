@@ -113,12 +113,18 @@ export default function CadastroPage() {
     setIsSubmitting(true)
     
     try {
+      // Logs para debug do role no formulário
+      console.log('Formulário antes de enviar:', formData);
+      console.log('Role selecionado:', formData.role);
+      
       // Usa a função do serviço API para fazer o cadastro
       const data = await cadastrarUsuario(formData);
       console.log("Usuário cadastrado com sucesso:", data);
+      console.log("Role do usuário cadastrado:", data.role);
       
       // Redirecionar para a página de login após cadastro com sucesso
-      router.push("/login?cadastro=success");
+      // Usar navegação baseada no navegador em vez do router.push para contornar limitações do SSR
+      window.location.href = "/login?cadastro=success";
     } catch (error) {
       console.error("Erro ao cadastrar:", error);
       

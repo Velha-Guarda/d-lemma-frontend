@@ -11,11 +11,14 @@ export default function DashboardPage() {
   const router = useRouter()
   
   useEffect(() => {
+    // Log para debug do objeto user
+    console.log("Objeto user no dashboard:", user);
+    
     // Redirecionar para login se não estiver autenticado
     if (!isLoading && !isAuthenticated) {
       router.push('/login')
     }
-  }, [isLoading, isAuthenticated, router])
+  }, [isLoading, isAuthenticated, router, user])
   
   // Mostra um loader enquanto verifica a autenticação
   if (isLoading) {
@@ -33,14 +36,48 @@ export default function DashboardPage() {
   
   // Função para converter o role para um formato amigável
   const formatRole = (role: string): string => {
-    switch (role?.toUpperCase()) {
+    if (!role) return '';
+    
+    switch (role.toUpperCase()) {
       case 'PROFESSOR':
         return 'Professor';
       case 'STUDENT':
         return 'Estudante';
       default:
-        return role || '';
+        return role;
     }
+  };
+
+  // Função para formatar o nome do curso
+  const formatGraduation = (graduation: string): string => {
+    if (!graduation) return '';
+    
+    // Mapear cursos específicos que precisam de tratamento especial
+    const coursesMap: Record<string, string> = {
+      'ciencia_computacao': 'Ciência da Computação',
+      'engenharia_software': 'Engenharia de Software',
+      'sistemas_informacao': 'Sistemas de Informação',
+      'analise_sistemas': 'Análise e Desenvolvimento de Sistemas',
+      'engenharia_computacao': 'Engenharia da Computação',
+      'engenharia_civil': 'Engenharia Civil',
+      'engenharia_mecanica': 'Engenharia Mecânica',
+      'engenharia_eletrica': 'Engenharia Elétrica',
+      'engenharia_quimica': 'Engenharia Química',
+      'gestao_ambiental': 'Gestão Ambiental',
+      'educacao_fisica': 'Educação Física'
+    };
+    
+    // Se o curso está no mapeamento, retorna o valor formatado
+    if (graduation in coursesMap) {
+      return coursesMap[graduation];
+    }
+    
+    // Caso contrário, formata substituindo underscores por espaços
+    // e colocando primeira letra de cada palavra em maiúsculo
+    return graduation
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   };
 
   return (
@@ -82,7 +119,7 @@ export default function DashboardPage() {
           <div className="mt-4 rounded-lg bg-gray-50 p-4">
             <p className="text-black"><strong>Nome:</strong> {user.nome || user.name}</p>
             <p className="text-black"><strong>Email:</strong> {user.email}</p>
-            <p className="text-black"><strong>Curso:</strong> {user.graduation}</p>
+            <p className="text-black"><strong>Curso:</strong> {formatGraduation(user.graduation)}</p>
             <p className="text-black"><strong>Perfil:</strong> {formatRole(user.role)}</p>
           </div>
         </div>
