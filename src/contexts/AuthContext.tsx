@@ -32,9 +32,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const userDataString = localStorage.getItem('userData')
           if (userDataString) {
             const userData = JSON.parse(userDataString)
+            console.log("Dados recuperados do localStorage:", userData);
+            console.log("Role recuperado do localStorage:", userData.role);
             setUser(userData)
           }
-        } catch {
+        } catch (error) {
+          console.error("Erro ao recuperar dados do localStorage:", error);
           // Se houver erro, faz logout
           logout()
         } finally {
@@ -50,28 +53,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   // Função para normalizar os dados do usuário
   function normalizeUserData(data: Usuario | Record<string, unknown>): Usuario {
+    console.log("Dados recebidos para normalização:", data);
+    
+    // Extrair o role do token JWT, se disponível
+    let roleFromToken: string | undefined;
+    if (typeof data.token === 'string') {
+      try {
+        // O token JWT tem três partes separadas por pontos
+        const tokenParts = data.token.split('.');
+        if (tokenParts.length === 3) {
+          // A segunda parte do token (índice 1) contém os dados (payload)
+          const payload = JSON.parse(atob(tokenParts[1]));
+          roleFromToken = payload.role;
+          console.log("Role extraído do token:", roleFromToken);
+        }
+      } catch (error) {
+        console.error("Erro ao extrair role do token:", error);
+      }
+    }
+    
     // Se a resposta tiver a estrutura { user: {...}, token: "..." }
     if ('user' in data && 'token' in data && typeof data.user === 'object') {
       const user = data.user as Record<string, unknown>;
+      console.log("Estrutura user encontrada:", user);
+      const role = user.role as string || roleFromToken;
+      console.log("Role final a ser usado:", role);
+      
       return {
         id: user.id as string | number,
         nome: (user.name as string) || (user.nome as string),
         name: user.name as string,
         email: user.email as string,
         graduation: user.graduation as string,
-        role: (user.role as string) || "STUDENT",
+        role: role || "STUDENT", // Usar role do token se não estiver no objeto
         token: data.token as string
       };
     }
     
     // Se a resposta for o próprio usuário
+    const role = (data.role as string) || roleFromToken;
+    console.log("Role final a ser usado:", role);
+    
     return {
       id: data.id as string | number,
       nome: (data.name as string) || (data.nome as string),
       name: data.name as string,
       email: data.email as string,
-      graduation: data.graduation as string,
-      role: (data.role as string) || "STUDENT",
+      graduation: data.graduation as string, 
+      role: role || "STUDENT", // Usar role do token se não estiver no objeto
       token: data.token as string
     };
   }

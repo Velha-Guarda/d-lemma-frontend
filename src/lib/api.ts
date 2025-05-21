@@ -22,13 +22,17 @@ function getApiUrl(endpoint: string): string {
 
 // Função para fazer o cadastro de usuário
 export async function cadastrarUsuario(dados: CadastroUsuario): Promise<Usuario> {
+  // Garantir que o role seja mantido
+  const role = dados.role || "STUDENT";
+  console.log("Role original no cadastro:", role);
+  
   // Mapeando os nomes dos campos para o formato esperado pelo backend
   const dadosParaEnvio = {
     name: dados.name,
     email: dados.email,
     password: dados.password,
     graduation: dados.graduation,
-    role: dados.role || "STUDENT"
+    role: role
   };
   
   console.log('Dados para envio:', dadosParaEnvio);
@@ -55,6 +59,8 @@ export async function cadastrarUsuario(dados: CadastroUsuario): Promise<Usuario>
   }
 
   const userData = await response.json();
+  console.log("Resposta da API após cadastro:", userData);
+  console.log("Role na resposta da API:", userData.role);
   
   // Se o cadastro retornar um token, armazenar
   if (userData.token) {
