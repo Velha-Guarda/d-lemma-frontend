@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -40,7 +39,6 @@ const selectStyles = `
 `
 
 export default function CadastroPage() {
-  const router = useRouter()
   const [formData, setFormData] = useState<CadastroUsuario>({
     name: "",
     email: "",
