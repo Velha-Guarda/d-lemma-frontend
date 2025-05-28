@@ -24,27 +24,33 @@ function LoginFormContent() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
   useEffect(() => {
-    // Verifica se o usuário acabou de se cadastrar com sucesso
     if (searchParams.get('cadastro') === 'success') {
       setSuccessMessage("Cadastro realizado com sucesso! Faça login para continuar.")
     }
   }, [searchParams])
   
-  // Atualiza erros quando houver erro de autenticação
   useEffect(() => {
     if (authError) {
-      setErrors({ form: authError })
+      setErrors(prev => ({
+        ...prev,
+        auth: "O endereço de e-mail ou a senha não estão corretos."
+      }))
+    } else {
+      setErrors(prev => {
+        const newErrors = { ...prev }
+        delete newErrors.auth
+        return newErrors
+      })
     }
   }, [authError])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
-    
-    // Limpa o erro deste campo quando o usuário começa a digitar novamente
+
     if (errors[name]) {
       setErrors(prev => {
-        const newErrors = {...prev}
+        const newErrors = { ...prev }
         delete newErrors[name]
         return newErrors
       })
@@ -53,35 +59,27 @@ function LoginFormContent() {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
-    
-    // Validar email
+
     if (!formData.email.trim()) {
       newErrors.email = "Email é obrigatório"
     }
-    
-    // Validar senha
     if (!formData.senha) {
       newErrors.senha = "Senha é obrigatória"
     }
-    
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
     if (!validateForm()) return
-    
     setIsSubmitting(true)
-    
+
     try {
-      // Usar a função de login do contexto de autenticação
       await login(formData.email, formData.senha)
-      // Não precisa redirecionar aqui, o contexto já faz isso
     } catch (error) {
       console.error("Erro ao fazer login:", error)
-      // Erros de autenticação são tratados pelo useEffect que monitora authError
     } finally {
       setIsSubmitting(false)
     }
@@ -89,7 +87,6 @@ function LoginFormContent() {
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center py-12 text-white">
-      {/* Background image */}
       <div className="absolute inset-0 z-0">
         <Image 
           src="/images/background.png"
@@ -99,8 +96,7 @@ function LoginFormContent() {
           priority
         />
       </div>
-      
-      {/* Logo acima do retângulo */}
+
       <div className="relative z-10 mb-8 flex flex-col items-center">
         <Image 
           src="/images/logodlemma.png" 
@@ -110,11 +106,10 @@ function LoginFormContent() {
           className="mb-2"
         />
       </div>
-      
-      {/* Retângulo centralizado com o formulário */}
+
       <div className="relative z-10 mx-auto w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-xl">
         <div className="flex flex-col md:flex-row">
-          {/* Coluna da esquerda (Novo por aqui?) */}
+          
           <div className="w-full bg-white p-8 text-black md:w-1/3">
             <div className="flex h-full flex-col justify-center">
               <h2 className="mb-2 text-2xl font-bold">Novo por aqui?</h2>
@@ -129,18 +124,17 @@ function LoginFormContent() {
               </Link>
             </div>
           </div>
-          
-          {/* Coluna da direita (Login) */}
+
           <div className="w-full bg-[#203D68] p-8 md:w-2/3">
             <h2 className="mb-2 text-center text-xl font-semibold">Bem-vindo de volta!</h2>
             <p className="mb-6 text-center text-sm opacity-80">Acesse sua conta agora mesmo</p>
-            
+
             {successMessage && (
               <div className="mb-6 rounded-md bg-green-500/20 p-3 text-center text-sm text-white">
                 {successMessage}
               </div>
             )}
-            
+
             <Form className="space-y-4" onSubmit={handleSubmit}>
               <FormItem>
                 <FormControl>
@@ -160,7 +154,7 @@ function LoginFormContent() {
                 </FormControl>
                 {errors.email && <FormMessage>{errors.email}</FormMessage>}
               </FormItem>
-              
+
               <FormItem>
                 <FormControl>
                   <div className="relative">
@@ -179,15 +173,16 @@ function LoginFormContent() {
                 </FormControl>
                 {errors.senha && <FormMessage>{errors.senha}</FormMessage>}
               </FormItem>
-              
-              <div className="text-right">
+
+              <div className="flex justify-between items-center">
+                {errors.auth && (
+                  <p className="text-sm text-red-500">{errors.auth}</p>
+                )}
                 <Link href="/recuperar-senha" className="text-sm text-white/70 hover:text-white">
                   Esqueceu sua senha?
                 </Link>
               </div>
-              
-              {errors.form && <FormMessage className="text-center">{errors.form}</FormMessage>}
-              
+
               <div className="pt-4 text-center">
                 <Button 
                   className="w-60 bg-[#091429] text-white hover:bg-[#091429]/90"
@@ -213,4 +208,4 @@ export default function LoginPage() {
       <LoginFormContent />
     </Suspense>
   )
-} 
+}
