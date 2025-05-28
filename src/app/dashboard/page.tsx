@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Heart, User, BarChart3, Settings, MapPin, Monitor, Trophy } from "lucide-react"
+import { Heart, User, Monitor, Trophy } from "lucide-react"
 
 export default function DashboardPage() {
-  const { user, isLoading, isAuthenticated, logout } = useAuth()
+  const { user, isLoading, isAuthenticated } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
@@ -34,52 +34,6 @@ export default function DashboardPage() {
   if (!isAuthenticated || !user) {
     return null
   }
-
-  // Função para converter o role para um formato amigável
-  const formatRole = (role: string): string => {
-    if (!role) return '';
-
-    switch (role.toUpperCase()) {
-      case 'PROFESSOR':
-        return 'Professor';
-      case 'STUDENT':
-        return 'Estudante';
-      default:
-        return role;
-    }
-  };
-
-  // Função para formatar o nome do curso
-  const formatGraduation = (graduation: string): string => {
-    if (!graduation) return '';
-
-    // Mapear cursos específicos que precisam de tratamento especial
-    const coursesMap: Record<string, string> = {
-      'ciencia_computacao': 'Ciência da Computação',
-      'engenharia_software': 'Engenharia de Software',
-      'sistemas_informacao': 'Sistemas de Informação',
-      'analise_sistemas': 'Análise e Desenvolvimento de Sistemas',
-      'engenharia_computacao': 'Engenharia da Computação',
-      'engenharia_civil': 'Engenharia Civil',
-      'engenharia_mecanica': 'Engenharia Mecânica',
-      'engenharia_eletrica': 'Engenharia Elétrica',
-      'engenharia_quimica': 'Engenharia Química',
-      'gestao_ambiental': 'Gestão Ambiental',
-      'educacao_fisica': 'Educação Física'
-    };
-
-    // Se o curso está no mapeamento, retorna o valor formatado
-    if (graduation in coursesMap) {
-      return coursesMap[graduation];
-    }
-
-    // Caso contrário, formata substituindo underscores por espaços
-    // e colocando primeira letra de cada palavra em maiúsculo
-    return graduation
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  };
 
   return (
     <div className="flex min-h-screen">
