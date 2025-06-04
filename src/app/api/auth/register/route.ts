@@ -18,11 +18,9 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(body),
     });
     
-    console.log('Status da resposta:', response.status);
     
     // Tentar obter o texto da resposta primeiro
     const responseText = await response.text();
-    console.log('Resposta (texto):', responseText);
     
     // Se a resposta estiver vazia ou não for JSON, retornar um erro
     if (!responseText) {

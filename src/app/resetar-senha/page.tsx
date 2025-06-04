@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
@@ -10,7 +10,15 @@ import { Form, FormControl, FormItem, FormMessage } from "@/components/ui/form"
 import { Lock } from "lucide-react"
 import { redefinirSenha } from "@/lib/api"
 
-export default function ResetarSenhaPage() {
+export default function ResetarSenhaPageWrapper() {
+  return (
+    <Suspense>
+      <ResetarSenhaPage />
+    </Suspense>
+  )
+}
+
+function ResetarSenhaPage() {
   const searchParams = useSearchParams()
   const token = searchParams.get("token") || ""
   const [newPassword, setNewPassword] = useState("")
