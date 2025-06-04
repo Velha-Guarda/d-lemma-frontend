@@ -159,4 +159,36 @@ export function logout() {
   localStorage.removeItem('userData');
   
   window.location.href = '/login';
+}
+
+// Função para solicitar recuperação de senha
+export async function solicitarRecuperacaoSenha(email: string): Promise<void> {
+  const response = await fetch(getApiUrl('/auth/request-password-reset'), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Erro ao solicitar recuperação de senha');
+  }
+}
+
+// Função para redefinir a senha
+export async function redefinirSenha(token: string, newPassword: string): Promise<void> {
+  const response = await fetch(getApiUrl('/auth/reset-password'), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ token, newPassword })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Erro ao redefinir a senha');
+  }
 } 
