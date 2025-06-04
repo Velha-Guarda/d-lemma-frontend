@@ -7,7 +7,6 @@ export async function POST(request: NextRequest) {
   try {
     // Obter o corpo da requisição
     const body = await request.json();
-    console.log('Dados de login:', body);
     
     // Adaptar os dados para o formato esperado pelo backend
     const dadosParaEnvio = {
@@ -28,7 +27,6 @@ export async function POST(request: NextRequest) {
     
     // Tentar obter o texto da resposta primeiro
     const responseText = await response.text();
-    console.log('Resposta (texto):', responseText);
     
     // Se a resposta estiver vazia, retornar um erro
     if (!responseText) {
