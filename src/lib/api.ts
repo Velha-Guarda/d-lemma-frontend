@@ -191,4 +191,20 @@ export async function redefinirSenha(token: string, newPassword: string): Promis
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.message || 'Erro ao redefinir a senha');
   }
+}
+
+// Buscar dilemas do usuário logado
+export async function listarDilemasUsuario(): Promise<DilemmaStatusResponseDTO[]> {
+  const response = await fetchAutenticado('/dilemmas/me');
+  return response;
+}
+
+// Tipagem do retorno
+export interface DilemmaStatusResponseDTO {
+  idDilemma: number;
+  title: string;
+  professorId: string;
+  invitationStatus: string;
+  isClosed: boolean;
+  closedAt: string | null;
 } 

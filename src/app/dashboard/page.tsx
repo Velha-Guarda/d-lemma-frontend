@@ -1,15 +1,19 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Heart, User, Monitor, Trophy } from "lucide-react"
+import { listarDilemasUsuario, DilemmaStatusResponseDTO } from "@/lib/api"
 
 export default function DashboardPage() {
   const { user, isLoading, isAuthenticated } = useAuth()
   const router = useRouter()
+  const [dilemas, setDilemas] = useState<DilemmaStatusResponseDTO[]>([])
+  const [loadingDilemas, setLoadingDilemas] = useState(true)
+  const [erroDilemas, setErroDilemas] = useState<string | null>(null)
 
   useEffect(() => {
     // Log para debug do objeto user
@@ -18,6 +22,14 @@ export default function DashboardPage() {
     // Redirecionar para login se não estiver autenticado
     if (!isLoading && !isAuthenticated) {
       router.push('/login')
+    }
+
+    if (!isLoading && isAuthenticated) {
+      setLoadingDilemas(true)
+      listarDilemasUsuario()
+        .then(setDilemas)
+        .catch((err) => setErroDilemas(err instanceof Error ? err.message : 'Erro ao buscar dilemas'))
+        .finally(() => setLoadingDilemas(false))
     }
   }, [isLoading, isAuthenticated, router, user])
 
@@ -107,32 +119,39 @@ export default function DashboardPage() {
 
           {/* Dilemas Grid */}
           <div className="grid grid-cols-3 gap-6">
-            {Array.from({ length: 6 }, (_, index) => (
-              <div key={index} className="bg-white rounded-xl p-6 shadow-lg relative">
-                {/* Heart Icon */}
-                <button className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors">
-                  <Heart className="w-5 h-5" />
-                </button>
-
-                {/* Dilema Title */}
-                <h3 className="text-[#000000] font-bold text-3xl mb-4">Dilema 01</h3>
-
-                <div className="flex justify-between mt-20">
-                  {/* Comments Section */}
-                  <div className="mb-6">
-                    <div className="text-4xl font-bold text-[#000000]">22</div>
-                    <div className="text-gray-500 text-sm">Respostas</div>
-                  </div>
-
-                  {/* Visualizar Button */}
-                  <div className="flex justify-end">
-                    <Button className="bg-[#2D4A77] hover:bg-[#4B5563] text-white text-1xl px-4 py-2 w-28 h-9">
-                      Visualizar
-                    </Button>
+            {loadingDilemas ? (
+              <div className="col-span-3 text-center text-white text-xl">Carregando dilemas...</div>
+            ) : erroDilemas ? (
+              <div className="col-span-3 text-center text-red-400 text-xl">{erroDilemas}</div>
+            ) : dilemas.length === 0 ? (
+              <div className="col-span-3 text-center text-white text-xl">Nenhum dilema encontrado.</div>
+            ) : (
+              dilemas.map((dilema) => (
+                <div key={dilema.idDilemma} className="bg-white rounded-xl p-6 shadow-lg relative">
+                  {/* Heart Icon */}
+                  <button className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors">
+                    <Heart className="w-5 h-5" />
+                  </button>
+                  {/* Dilema Title */}
+                  <h3 className="text-[#000000] font-bold text-3xl mb-4">{dilema.title}</h3>
+                  <div className="flex justify-between mt-20">
+                    {/* Status Section */}
+                    <div className="mb-6">
+                      <div className="text-base font-semibold text-[#000000]">
+                        Status: {dilema.invitationStatus === 'ACCEPTED' ? 'Aceito' : dilema.invitationStatus}
+                      </div>
+                      <div className="text-gray-500 text-sm">{dilema.isClosed ? 'Encerrado' : 'Aberto'}</div>
+                    </div>
+                    {/* Visualizar Button */}
+                    <div className="flex justify-end">
+                      <Button className="bg-[#2D4A77] hover:bg-[#4B5563] text-white text-1xl px-4 py-2 w-28 h-9">
+                        Visualizar
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>
