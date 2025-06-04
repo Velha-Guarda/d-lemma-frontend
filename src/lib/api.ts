@@ -126,18 +126,13 @@ export async function fetchAutenticado(url: string, options: RequestInit = {}) {
   });
 
   if (!response.ok) {
-    // Se receber um 401 (Não autorizado), provavelmente o token expirou
-    if (response.status === 401) {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userData');
-      // Redirecionar para login em aplicações cliente-side
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login?expired=true';
-      }
-    }
-    
+    // Se receber um 401 (Não autorizado), apenas lança o erro, não desloga
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || `Erro na requisição: ${response.status}`);
+    let errorMsg = errorData.message || `Erro na requisição: ${response.status}`;
+    if (errorMsg === 'Invalid or missing token') {
+      errorMsg = 'E-mail não existe ou erro inesperado';
+    }
+    throw new Error(errorMsg);
   }
 
   return await response.json();
@@ -159,4 +154,79 @@ export function logout() {
   localStorage.removeItem('userData');
   
   window.location.href = '/login';
+}
+
+// Função para solicitar recuperação de senha
+export async function solicitarRecuperacaoSenha(email: string): Promise<void> {
+  const response = await fetch(getApiUrl('/auth/request-password-reset'), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Erro ao solicitar recuperação de senha');
+  }
+}
+
+// Função para redefinir a senha
+export async function redefinirSenha(token: string, newPassword: string): Promise<void> {
+  const response = await fetch(getApiUrl('/auth/reset-password'), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ token, newPassword })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Erro ao redefinir a senha');
+  }
+}
+
+// Buscar dilemas do usuário logado
+export async function listarDilemasUsuario(): Promise<DilemmaStatusResponseDTO[]> {
+  const response = await fetchAutenticado('/dilemmas/me');
+  return response as DilemmaStatusResponseDTO[];
+}
+
+// Tipagem do retorno
+export interface DilemmaStatusResponseDTO {
+  idDilemma: number;
+  title: string;
+  professorId: string;
+  invitationStatus: string;
+  isClosed: boolean;
+  closedAt: string | null;
+}
+
+// Criar dilema
+export async function criarDilema({ title, professorId }: { title: string; professorId: string }): Promise<DilemmaStatusResponseDTO> {
+  const response = await fetchAutenticado('/dilemmas', {
+    method: 'POST',
+    body: JSON.stringify({ title, professorId }),
+  });
+  return response as DilemmaStatusResponseDTO;
+}
+
+// Responder convite
+export async function responderConvite({ chatId, response }: { chatId: number; response: 'ACCEPTED' | 'DECLINED' }): Promise<{ success: boolean }> {
+  const res = await fetchAutenticado('/invitations/respond', {
+    method: 'POST',
+    body: JSON.stringify({ chatId, response }),
+  });
+  return res as { success: boolean };
+}
+
+// Convidar usuário para um chat
+export async function convidarUsuarioParaChat({ email, chatId }: { email: string; chatId: number }): Promise<{ success: boolean }> {
+  const res = await fetchAutenticado('/invitations/invite', {
+    method: 'POST',
+    body: JSON.stringify({ email, chatId }),
+  });
+  return res as { success: boolean };
 } 
