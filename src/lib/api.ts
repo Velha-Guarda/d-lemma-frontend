@@ -135,7 +135,13 @@ export async function fetchAutenticado(url: string, options: RequestInit = {}) {
     throw new Error(errorMsg);
   }
 
-  return await response.json();
+  // Tenta parsear como JSON, se falhar retorna como texto
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { message: text };
+  }
 }
 
 // Função para verificar se o usuário está autenticado
