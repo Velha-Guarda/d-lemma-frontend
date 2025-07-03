@@ -265,7 +265,14 @@ export default function DilemmaDetailPage({ params }: { params?: Promise<{ id: s
                     setEmailConvite("")
                     setTimeout(() => setModalOpen(false), 1200)
                   } catch (err) {
-                    setErroConvite(err instanceof Error ? err.message : "Erro ao enviar convite")
+                    if (
+                      err instanceof SyntaxError &&
+                      (err.message.includes('Unexpected token') || err.message.includes('JSON'))
+                    ) {
+                      setSucessoConvite("Convite enviado!")
+                    } else {
+                      setErroConvite(err instanceof Error ? err.message : "Erro ao enviar convite")
+                    }
                   } finally {
                     setLoadingConvite(false)
                   }

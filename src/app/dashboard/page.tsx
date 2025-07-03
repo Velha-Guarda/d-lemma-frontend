@@ -39,6 +39,8 @@ export default function DashboardPage() {
   const [dilemas, setDilemas] = useState<DilemmaStatusResponseDTO[]>([])
   const [loadingDilemas, setLoadingDilemas] = useState(true)
   const [erroDilemas, setErroDilemas] = useState<string | null>(null)
+  const [loadingConviteId, setLoadingConviteId] = useState<number | null>(null)
+  const [erroConviteId, setErroConviteId] = useState<number | null>(null)
 
   useEffect(() => {
     // Log para debug do objeto user
@@ -234,36 +236,61 @@ export default function DashboardPage() {
                       <div className="flex flex-col gap-2 justify-end items-end">
                         <Button
                           className="bg-green-600 hover:bg-green-700 text-white text-1xl px-4 py-2 w-28 h-9"
+                          disabled={loadingConviteId === dilema.idDilemma}
                           onClick={async () => {
-                            await responderConvite({ chatId: dilema.idDilemma, response: 'ACCEPTED' })
-                            setLoadingDilemas(true)
-                            listarDilemasUsuario()
-                              .then((dilemas) => {
-                                console.log('Dilemas retornados do backend:', dilemas)
-                                setDilemas(dilemas)
-                              })
-                              .catch((err) => setErroDilemas(err instanceof Error ? err.message : 'Erro ao buscar dilemas'))
-                              .finally(() => setLoadingDilemas(false))
+                            setErroConviteId(null)
+                            setLoadingConviteId(dilema.idDilemma)
+                            // Atualização otimista
+                            setDilemas((prev) => prev.map((d) => d.idDilemma === dilema.idDilemma ? { ...d, invitationStatus: 'ACCEPTED' } : d))
+                            try {
+                              await responderConvite({ chatId: dilema.idDilemma, response: 'ACCEPTED' })
+                              // Atualiza lista do backend para garantir consistência
+                              listarDilemasUsuario()
+                                .then((dilemas) => {
+                                  setDilemas(dilemas)
+                                })
+                                .catch((err) => setErroDilemas(err instanceof Error ? err.message : 'Erro ao buscar dilemas'))
+                                .finally(() => setLoadingDilemas(false))
+                            } catch (err) {
+                              // Reverte se falhar
+                              setDilemas((prev) => prev.map((d) => d.idDilemma === dilema.idDilemma ? { ...d, invitationStatus: 'PENDING' } : d))
+                              setErroConviteId(dilema.idDilemma)
+                            } finally {
+                              setLoadingConviteId(null)
+                            }
                           }}
                         >
-                          Aceitar
+                          {loadingConviteId === dilema.idDilemma ? 'Aceitando...' : 'Aceitar'}
                         </Button>
                         <Button
                           className="bg-red-600 hover:bg-red-700 text-white text-1xl px-4 py-2 w-28 h-9"
+                          disabled={loadingConviteId === dilema.idDilemma}
                           onClick={async () => {
-                            await responderConvite({ chatId: dilema.idDilemma, response: 'DECLINED' })
-                            setLoadingDilemas(true)
-                            listarDilemasUsuario()
-                              .then((dilemas) => {
-                                console.log('Dilemas retornados do backend:', dilemas)
-                                setDilemas(dilemas)
-                              })
-                              .catch((err) => setErroDilemas(err instanceof Error ? err.message : 'Erro ao buscar dilemas'))
-                              .finally(() => setLoadingDilemas(false))
+                            setErroConviteId(null)
+                            setLoadingConviteId(dilema.idDilemma)
+                            // Atualização otimista
+                            setDilemas((prev) => prev.map((d) => d.idDilemma === dilema.idDilemma ? { ...d, invitationStatus: 'REJECTED' } : d))
+                            try {
+                              await responderConvite({ chatId: dilema.idDilemma, response: 'DECLINED' })
+                              listarDilemasUsuario()
+                                .then((dilemas) => {
+                                  setDilemas(dilemas)
+                                })
+                                .catch((err) => setErroDilemas(err instanceof Error ? err.message : 'Erro ao buscar dilemas'))
+                                .finally(() => setLoadingDilemas(false))
+                            } catch (err) {
+                              setDilemas((prev) => prev.map((d) => d.idDilemma === dilema.idDilemma ? { ...d, invitationStatus: 'PENDING' } : d))
+                              setErroConviteId(dilema.idDilemma)
+                            } finally {
+                              setLoadingConviteId(null)
+                            }
                           }}
                         >
-                          Recusar
+                          {loadingConviteId === dilema.idDilemma ? 'Recusando...' : 'Recusar'}
                         </Button>
+                        {erroConviteId === dilema.idDilemma && (
+                          <div className="text-red-500 text-sm mt-1">Erro ao atualizar convite. Tente novamente.</div>
+                        )}
                       </div>
                     )}
                   </div>
