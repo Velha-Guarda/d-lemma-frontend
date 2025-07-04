@@ -1,52 +1,69 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import Image from "next/image"
+import { Button } from "@/components/ui/button"
 import { Monitor, Heart, User, Trophy } from "lucide-react"
 import { convidarUsuarioParaChat } from "@/lib/api"
-import React from "react"
 import { useAuth } from "@/contexts/AuthContext"
+import { useChat, ChatMessage } from "@/hooks/useChat"
 
 export default function DilemmaDetailPage({ params }: { params?: Promise<{ id: string }> }) {
   const searchParams = useSearchParams()
-  const getParams = useCallback(async () => (params ? await params : undefined), [params]);
+  const getParams = useCallback(async () => (params ? await params : undefined), [params])
   const [id, setId] = useState<string | undefined>(undefined)
   const [titulo, setTitulo] = useState<string>("Título Dilemma")
+  const [novaMensagem, setNovaMensagem] = useState("")
   const [modalOpen, setModalOpen] = useState(false)
   const [emailConvite, setEmailConvite] = useState("")
   const [loadingConvite, setLoadingConvite] = useState(false)
   const [erroConvite, setErroConvite] = useState<string | null>(null)
   const [sucessoConvite, setSucessoConvite] = useState<string | null>(null)
   const { user, logout } = useAuth()
+  const { messages, sendMessage } = useChat(id || "")
+
+  const bottomRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     getParams().then(p => setId(p?.id))
   }, [getParams])
 
   useEffect(() => {
-    if (!id) return;
-    // 1. Tenta pegar da query string
+    if (!id) return
     const tituloQuery = searchParams.get("titulo")
     if (tituloQuery) {
       setTitulo(tituloQuery)
-      // Salva no localStorage para navegação direta depois
       localStorage.setItem(`dilemma-title-${id}`, tituloQuery)
       return
     }
-    // 2. Tenta pegar do localStorage
     const tituloLocal = localStorage.getItem(`dilemma-title-${id}`)
-    if (tituloLocal) {
-      setTitulo(tituloLocal)
-    }
+    if (tituloLocal) setTitulo(tituloLocal)
   }, [id, searchParams])
+
+  useEffect(() => {
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: "smooth" })
+    }
+  }, [messages])
+
+  function handleEnviarMensagem() {
+    if (!novaMensagem.trim() || !user?.id || !id) return
+
+    const msg: ChatMessage = {
+      content: novaMensagem.trim(),
+      senderId: `${user.id}`,
+      dilemmaId: `${id}`
+    }
+
+    sendMessage(msg)
+    setNovaMensagem("")
+  }
 
   return (
     <div className="flex min-h-screen bg-[#F8FAFC]">
       {/* Sidebar */}
       <div className="w-80 bg-[#2D4A77] flex flex-col items-center py-8">
-        {/* Logo */}
         <div className="mb-8 flex flex-col items-center">
           <div className="relative mb-4">
             <Image
@@ -57,7 +74,6 @@ export default function DilemmaDetailPage({ params }: { params?: Promise<{ id: s
             />
           </div>
         </div>
-        {/* Menu */}
         <div className="w-full px-6 flex-1 flex flex-col">
           <div className="mb-6">
             <h3 className="text-white/80 text-sm font-medium mb-4">Menu Principal</h3>
@@ -80,7 +96,6 @@ export default function DilemmaDetailPage({ params }: { params?: Promise<{ id: s
               <span className="font-medium">Ranking</span>
             </button>
           </nav>
-          {/* Botão de logout no final do menu */}
           <div className="mt-auto w-full flex flex-col pb-4">
             <button
               onClick={logout}
@@ -99,34 +114,28 @@ export default function DilemmaDetailPage({ params }: { params?: Promise<{ id: s
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col">
-        {/* Header */}
         <header className="flex items-center justify-between bg-[#1A2A4B] px-12 py-6">
           <h1 className="text-white text-4xl font-extrabold tracking-tight overflow-hidden line-clamp-2 max-h-[3.2em] max-w-[500px]">{titulo}</h1>
           {user?.role === 'PROFESSOR' && (
             <div className="flex gap-4">
-              <Button className="bg-white px-4 py-2 rounded-lg shadow flex items-center gap-3 border-0 hover:bg-gray-100" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+              <Button className="bg-white px-4 py-2 rounded-lg shadow flex items-center gap-3 border-0 hover:bg-gray-100">
                 <span className="flex items-center justify-center w-6 h-6 bg-[#2e4f92] rounded-md">
-                  <span className="text-white text-xl font-bold" style={{ lineHeight: '1' }} >+</span>
+                  <span className="text-white text-xl font-bold">+</span>
                 </span>
                 <span className="text-black text-2xl font-extrabold" style={{ fontFamily: 'Poppins, sans-serif' }}>Iniciar Chat</span>
               </Button>
-
-              <Button
-                className="bg-white text-[#1A2A4B] font-semibold px-6 py-2 rounded-lg shadow hover:bg-gray-100 text-2xl flex items-center gap-3"
-                onClick={() => {
-                  setErroConvite(null)
-                  setModalOpen(true)
-                }}
-              >
+              <Button className="bg-white text-[#1A2A4B] font-semibold px-6 py-2 rounded-lg shadow hover:bg-gray-100 text-2xl flex items-center gap-3" onClick={() => {     setEmailConvite("")
+    setErroConvite(null)
+    setSucessoConvite(null) // isso aqui é o que vai evitar o problema
+    setModalOpen(true) }}>
                 <span className="flex items-center justify-center w-6 h-6 bg-[#2e4f92] rounded-md">
-                  <span className="text-white text-xl font-bold" style={{ lineHeight: '1' }} >+</span>
+                  <span className="text-white text-xl font-bold">+</span>
                 </span>
                 <span className="text-black text-2xl font-extrabold" style={{ fontFamily: 'Poppins, sans-serif' }}>Adicionar Participantes</span>
               </Button>
-
               <Button className="bg-white text-[#1A2A4B] font-semibold px-6 py-2 rounded-lg shadow hover:bg-gray-100 text-2xl">
                 <span className="flex items-center justify-center w-6 h-6 bg-[#2e4f92] rounded-md">
-                  <span className="text-white text-xl font-bold" style={{ lineHeight: '1' }} >+</span>
+                  <span className="text-white text-xl font-bold">+</span>
                 </span>
                 <span className="text-black text-2xl font-extrabold" style={{ fontFamily: 'Poppins, sans-serif' }}>Encerrar Dlemma</span>
               </Button>
@@ -134,34 +143,43 @@ export default function DilemmaDetailPage({ params }: { params?: Promise<{ id: s
           )}
         </header>
 
-        {/* Chat area (mock) */}
-        <section className="flex-1 flex flex-col bg-white mx-8 my-6 rounded-lg shadow p-8">
-          {/* Mensagens mockadas */}
-          <div className="flex flex-col gap-4 mb-6">
-            <div className="flex flex-col">
-              <span className="bg-[#31446B] text-white px-4 py-2 rounded-lg w-fit font-semibold">Gil: Primeira Mensagem do dilema</span>
-              <span className="bg-[#31446B] text-white px-4 py-2 rounded-lg w-fit font-semibold mt-2">Kaian Gonçalves: HEHEHÉ é u gil o melhor scrum master</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="bg-[#31446B] text-white px-4 py-2 rounded-lg w-fit font-semibold">Gil: Primeira Mensagem do dilema</span>
-              <span className="bg-[#31446B] text-white px-4 py-2 rounded-lg w-fit font-semibold mt-2">Kaian Gonçalves: HEHEHÉ é u gil o melhor scrum master</span>
-            </div>
+        {/* Chat Area */}
+        <section className="flex flex-col bg-white mx-8 my-6 rounded-lg shadow p-8 max-h-[calc(100vh-200px)]">
+          <div className="flex flex-col overflow-y-auto gap-4 px-4 pb-6 h-full">
+            {messages.map((msg, idx) => {
+              const isMine = msg.senderId === user?.id || msg.senderId === `${user?.id}`
+              return (
+                <div key={idx} className={`flex ${isMine ? "justify-end" : "justify-start"} flex-col`}>
+                  {!isMine && (
+                    <div className="text-xs text-gray-500 mb-1 pl-1">
+                      {msg.senderName || "Usuário"}
+                    </div>
+                  )}
+                  <div className={`px-4 py-2 rounded-lg max-w-[70%] text-sm font-medium ${isMine ? "bg-gray-200 text-black self-end" : "bg-[#203D68] text-white self-start"}`}>
+                    {msg.content}
+                  </div>
+                </div>
+              )
+            })}
+            <div ref={bottomRef} />
           </div>
-          {/* Input de mensagem (desabilitado) */}
-          <div className="flex items-center mt-auto">
+
+          <div className="flex items-center pt-4">
             <input
               type="text"
-              placeholder="Digite sua mensagem para o chat..."
-              className="flex-1 border border-gray-300 rounded-full px-6 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1A2A4B] bg-[#F8FAFC]"
-              disabled
+              placeholder="Digite sua mensagem..."
+              className="flex-1 border border-gray-300 rounded-full px-6 py-3 text-gray-700 focus:outline-none focus:ring-0 bg-[#F8FAFC]"
+              value={novaMensagem}
+              onChange={e => setNovaMensagem(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') handleEnviarMensagem() }}
             />
-            <Button className="ml-4 bg-[#1A2A4B] text-white rounded-full px-6 py-3" disabled>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+            <Button className="ml-4 bg-[#1A2A4B] text-white rounded-full px-6 py-3" onClick={handleEnviarMensagem}>
+              Enviar
             </Button>
           </div>
         </section>
 
-        {/* Modal de convite */}
+      {/* Modal de convite */}
         {modalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             {/* Container Principal do Popup, agora com backgroundImage */}
@@ -238,11 +256,11 @@ export default function DilemmaDetailPage({ params }: { params?: Promise<{ id: s
               <button
                 className="
                   absolute
-                  left-[343px] top-[229px]
-                  w-[205px] h-[71px]
+                  left-[310px] top-[235px]    
+                  w-[270px] h-[71px]            
                   bg-[#FBF9F9]
-                  rounded-[5px]
-                  flex items-center justify-center gap-1
+                  rounded-[8px]                  
+                  flex items-center justify-center gap-2
                   cursor-pointer
                   disabled:opacity-60
                 "
@@ -263,7 +281,6 @@ export default function DilemmaDetailPage({ params }: { params?: Promise<{ id: s
                     await convidarUsuarioParaChat({ email: emailConvite, chatId: Number(id) })
                     setSucessoConvite("Convite enviado com sucesso!")
                     setEmailConvite("")
-                    setTimeout(() => setModalOpen(false), 1200)
                   } catch (err) {
                     if (
                       err instanceof SyntaxError &&
@@ -312,4 +329,4 @@ export default function DilemmaDetailPage({ params }: { params?: Promise<{ id: s
       </main>
     </div>
   )
-} 
+}

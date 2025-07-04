@@ -119,6 +119,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Salvar dados do usuário no localStorage
       localStorage.setItem('userData', JSON.stringify(userData))
       setUser(userData)
+      // Salvar o token em separado para autenticação futura
+      localStorage.setItem('token', `Bearer ${userData.token}`)
+
       
       // Redirecionar para dashboard após login bem-sucedido
       router.push('/dashboard')
