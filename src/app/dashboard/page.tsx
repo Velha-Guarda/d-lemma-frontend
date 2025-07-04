@@ -384,7 +384,22 @@ export default function DashboardPage() {
                   whitespace-nowrap
                   cursor-pointer
                 "
-              // onClick para a ação de sortear, se necessário
+                onClick={async () => {
+                  const token = localStorage.getItem("token") || ""
+                  try {
+                    const res = await fetch("/api/pandora", {
+                      headers: {
+                        Authorization: token,
+                      },
+                    })
+                    if (!res.ok) throw new Error("Erro ao sortear dilema")
+                    const data = await res.json()
+                    setNovoTitulo(data.dilemmaTitle)
+                  } catch (err) {
+                    console.error(err)
+                    alert("Erro ao sortear dilema")
+                  }
+                }}
               >
                 {/* Ícone 29×29 */}
                 <Image
