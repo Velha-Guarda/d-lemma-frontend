@@ -33,6 +33,9 @@ export default function DilemmaDetailPage() {
 
  const [isClosed, setIsClosed] = useState<boolean | null>(null)
 
+ const [confirmOpen, setConfirmOpen] = useState(false)
+
+
   async function handleCloseDilemma() {
     setClosing(true)
     setCloseError(null)
@@ -191,28 +194,57 @@ useEffect(() => {
                     Participantes
                   </span>
                 </Button>
-              {/* Botão de encerrar dilema (mantém) */}
-                <Button
-                  onClick={handleCloseDilemma}
-                  disabled={closing}
-                  className="
-                    bg-white text-[#1A2A4B] font-semibold
-                    px-3 py-1.5 rounded-lg shadow
-                    hover:bg-gray-100 text-lg
-                    flex items-center gap-2
-                    disabled:opacity-50
-                  "
-                >
-                  <span className="flex items-center justify-center w-5 h-5 bg-[#2e4f92] rounded-md">
-                    <span className="text-white text-base font-bold leading-none">+</span>
-                  </span>
-                  <span className="text-black text-lg font-extrabold whitespace-nowrap">
-                    {closing ? "Encerrando…" : "Encerrar Dlemma"}
-                  </span>
-                </Button>
-              {closeError && (
-                <p className="text-red-500 text-sm">{"Erro ao encerrar dlemma."}</p>
-              )}
+{/* Botão de encerrar dilema (mantém) */}
+<Button
+  onClick={() => setConfirmOpen(true)}
+  disabled={closing}
+  className="
+    bg-white text-[#1A2A4B] font-semibold
+    px-3 py-1.5 rounded-lg shadow
+    hover:bg-gray-100 text-lg
+    flex items-center gap-2
+    disabled:opacity-50
+  "
+>
+  <span className="flex items-center justify-center w-5 h-5 bg-[#2e4f92] rounded-md">
+    <span className="text-white text-base font-bold leading-none">+</span>
+  </span>
+  <span className="text-black text-lg font-extrabold whitespace-nowrap">
+    Encerrar Dlemma
+  </span>
+</Button>
+{closeError && (
+  <p className="text-red-500 text-sm">{"Erro ao encerrar dlemma."}</p>
+)}
+
+{/* Modal de confirmação */}
+{confirmOpen && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="bg-white p-6 rounded-[10px] border-[7px] border-[#2D4A77] w-[400px]">
+      <p className="text-lg font-medium mb-4">
+        Um dilema encerrado <strong>NÃO</strong> poderá ser reaberto.<br/>
+        Deseja mesmo encerrar?
+      </p>
+      <div className="flex justify-end gap-3">
+        <Button
+          onClick={() => {
+            setConfirmOpen(false)
+            handleCloseDilemma()
+          }}
+          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+        >
+          Sim, encerrar
+        </Button>
+        <Button
+          onClick={() => setConfirmOpen(false)}
+          className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded-lg"
+        >
+          Cancelar
+        </Button>
+      </div>
+    </div>
+  </div>
+)}
             </div>
           )}
 
@@ -249,7 +281,7 @@ useEffect(() => {
               onKeyDown={e => { if (e.key === 'Enter') handleEnviarMensagem() }}
               disabled={isClosed === true}
             />
-            <Button className="ml-4 bg-[#1A2A4B] text-white rounded-full px-6 py-3" onClick={handleEnviarMensagem}disabled={isClosed === true}>
+            <Button className="ml-4 bg-[#1A2A4B] text-white rounded-full px-6 py-3" onClick={handleEnviarMensagem}>
               Enviar
             </Button>
           </div>
