@@ -132,10 +132,6 @@ export default function DashboardPage() {
               <span className="font-medium">dLemmas</span>
             </button>
             <button className="flex items-center gap-4 w-full p-3 text-white hover:bg-white/10 rounded-lg transition-colors text-left">
-              <Heart className="w-5 h-5" />
-              <span className="font-medium">Favoritos</span>
-            </button>
-            <button className="flex items-center gap-4 w-full p-3 text-white hover:bg-white/10 rounded-lg transition-colors text-left">
               <User className="w-5 h-5" />
               <span className="font-medium">Perfil</span>
             </button>
@@ -153,7 +149,7 @@ export default function DashboardPage() {
             title="Sair"
           >
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="4" width="18" height="16" rx="2" fill="#2D4A77" stroke="white"/>
+              <rect x="3" y="4" width="18" height="16" rx="2" fill="#2D4A77" stroke="white" />
               <path d="M12 16l4-4-4-4" />
               <path d="M16 12H8" />
             </svg>
@@ -206,9 +202,6 @@ export default function DashboardPage() {
                   {/* Dilema Title + Heart Icon alinhados */}
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-[#000000] font-bold text-3xl overflow-hidden line-clamp-2 max-h-[2.8em] max-w-[320px]">{dilema.title}</h3>
-                    <button className="text-gray-400 hover:text-red-500 transition-colors">
-                      <Heart className="w-5 h-5" />
-                    </button>
                   </div>
                   <div className="flex justify-between mt-20">
                     {/* Status + Botão Visualizar alinhados */}
@@ -392,14 +385,23 @@ export default function DashboardPage() {
                         Authorization: token,
                       },
                     })
-                    if (!res.ok) throw new Error("Erro ao sortear dilema")
+
+                    if (!res.ok) {
+                      const json = await res.json()
+                      const errorMessage = json?.error || "Erro inesperado ao sortear dilema."
+                      throw new Error(errorMessage)
+                    }
+
                     const data = await res.json()
                     setNovoTitulo(data.dilemmaTitle)
+                    setErroCriar(null) // limpa qualquer erro anterior
                   } catch (err) {
                     console.error(err)
-                    alert("Erro ao sortear dilema")
+                    setErroCriar(err instanceof Error ? err.message : "Erro ao sortear dilema.")
                   }
                 }}
+
+
               >
                 {/* Ícone 29×29 */}
                 <Image
