@@ -14,9 +14,10 @@ export function useChat(dilemmaId: string) {
   const clientRef = useRef<StompJs.Client | null>(null)
   const subscriptionRef = useRef<StompJs.StompSubscription | null>(null)
 
-  // 1️⃣ Carrega histórico via rota local (Next.js proxy)
+  // 1️⃣ Carrega histórico de mensagens
   useEffect(() => {
-    if (!dilemmaId || dilemmaId === "undefined") return
+    const isValidId = dilemmaId && dilemmaId !== "undefined" && dilemmaId.trim() !== ""
+    if (!isValidId) return
 
     const token = localStorage.getItem("token") || ""
 
@@ -39,7 +40,11 @@ export function useChat(dilemmaId: string) {
 
   // 2️⃣ Conecta ao WebSocket e escuta mensagens em tempo real
   useEffect(() => {
-    if (!dilemmaId || dilemmaId === "undefined") return
+    const isValidId = dilemmaId && dilemmaId !== "undefined" && dilemmaId.trim() !== ""
+    if (!isValidId) {
+      console.warn("🛑 Dilemma ID inválido no WebSocket:", dilemmaId)
+      return
+    }
 
     const sock = new SockJS(`${process.env.NEXT_PUBLIC_API_URL}/ws`)
     const client = new StompJs.Client({
@@ -66,10 +71,10 @@ export function useChat(dilemmaId: string) {
     }
   }, [dilemmaId])
 
-  // 3️⃣ Envia nova mensagem pelo STOMP
+  // 3️⃣ Envia nova mensagem
   function sendMessage(message: ChatMessage) {
     if (!clientRef.current?.connected) {
-      console.warn("STOMP não está conectado.")
+      console.warn("⚠️ STOMP não está conectado. Mensagem não enviada.")
       return
     }
 

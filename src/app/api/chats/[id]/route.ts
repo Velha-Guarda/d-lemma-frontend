@@ -3,10 +3,10 @@ import { NextRequest, NextResponse } from 'next/server'
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
 
 export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params
+  const { id } = await params
 
   const token =
     req.headers.get('authorization') || req.headers.get('Authorization')

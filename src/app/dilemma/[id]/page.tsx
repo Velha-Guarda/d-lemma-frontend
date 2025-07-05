@@ -118,29 +118,33 @@ export default function DilemmaDetailPage({ params }: { params?: Promise<{ id: s
           <h1 className="text-white text-4xl font-extrabold tracking-tight overflow-hidden line-clamp-2 max-h-[3.2em] max-w-[500px]">{titulo}</h1>
           {user?.role === 'PROFESSOR' && (
             <div className="flex gap-4">
-              <Button className="bg-white px-4 py-2 rounded-lg shadow flex items-center gap-3 border-0 hover:bg-gray-100">
+              {/* Botão de adicionar participantes (mantém) */}
+              <Button className="bg-white text-[#1A2A4B] font-semibold px-6 py-2 rounded-lg shadow hover:bg-gray-100 text-2xl flex items-center gap-3" onClick={() => {
+                setEmailConvite("")
+                setErroConvite(null)
+                setSucessoConvite(null)
+                setModalOpen(true)
+              }}>
                 <span className="flex items-center justify-center w-6 h-6 bg-[#2e4f92] rounded-md">
                   <span className="text-white text-xl font-bold">+</span>
                 </span>
-                <span className="text-black text-2xl font-extrabold" style={{ fontFamily: 'Poppins, sans-serif' }}>Iniciar Chat</span>
-              </Button>
-              <Button className="bg-white text-[#1A2A4B] font-semibold px-6 py-2 rounded-lg shadow hover:bg-gray-100 text-2xl flex items-center gap-3" onClick={() => {     setEmailConvite("")
-    setErroConvite(null)
-    setSucessoConvite(null) // isso aqui é o que vai evitar o problema
-    setModalOpen(true) }}>
-                <span className="flex items-center justify-center w-6 h-6 bg-[#2e4f92] rounded-md">
-                  <span className="text-white text-xl font-bold">+</span>
+                <span className="text-black text-2xl font-extrabold" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                  Adicionar Participantes
                 </span>
-                <span className="text-black text-2xl font-extrabold" style={{ fontFamily: 'Poppins, sans-serif' }}>Adicionar Participantes</span>
               </Button>
+
+              {/* Botão de encerrar dilema (mantém) */}
               <Button className="bg-white text-[#1A2A4B] font-semibold px-6 py-2 rounded-lg shadow hover:bg-gray-100 text-2xl">
                 <span className="flex items-center justify-center w-6 h-6 bg-[#2e4f92] rounded-md">
                   <span className="text-white text-xl font-bold">+</span>
                 </span>
-                <span className="text-black text-2xl font-extrabold" style={{ fontFamily: 'Poppins, sans-serif' }}>Encerrar Dlemma</span>
+                <span className="text-black text-2xl font-extrabold" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                  Encerrar Dlemma
+                </span>
               </Button>
             </div>
           )}
+
         </header>
 
         {/* Chat Area */}
@@ -179,7 +183,7 @@ export default function DilemmaDetailPage({ params }: { params?: Promise<{ id: s
           </div>
         </section>
 
-      {/* Modal de convite */}
+        {/* Modal de convite */}
         {modalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             {/* Container Principal do Popup, agora com backgroundImage */}
