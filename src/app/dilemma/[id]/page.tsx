@@ -281,7 +281,7 @@ useEffect(() => {
               onKeyDown={e => { if (e.key === 'Enter') handleEnviarMensagem() }}
               disabled={isClosed === true}
             />
-            <Button className="ml-4 bg-[#1A2A4B] text-white rounded-full px-6 py-3" onClick={handleEnviarMensagem}>
+            <Button className="ml-4 bg-[#1A2A4B] text-white rounded-full px-6 py-3" onClick={handleEnviarMensagem} disabled={isClosed === true}>
               Enviar
             </Button>
           </div>
