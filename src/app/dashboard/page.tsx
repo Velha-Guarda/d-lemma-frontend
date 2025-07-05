@@ -73,7 +73,12 @@ export default function DashboardPage() {
   }
 
   const openModal = () => setIsModalOpen(true)
-  const closeModal = () => setIsModalOpen(false)
+  const closeModal = () => {
+    setNovoTitulo("")
+    setIsModalOpen(false)
+    setErroCriar(null)
+    setSucessoCriar(null)
+  }
 
   async function handleCriarDilema() {
     setErroCriar(null)
@@ -201,9 +206,9 @@ export default function DashboardPage() {
                 <div key={dilema.idDilemma} className="bg-white rounded-xl p-6 shadow-lg relative">
                   {/* Dilema Title + Heart Icon alinhados */}
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-[#000000] font-bold text-3xl overflow-hidden line-clamp-2 max-h-[2.8em] max-w-[320px]">{dilema.title}</h3>
+                    <h3 className="text-[#000000] font-bold text-2xl overflow-hidden line-clamp-3 max-h-[4.2em] max-w-[320px]">{dilema.title}</h3>
                   </div>
-                  <div className="flex justify-between mt-20">
+                  <div className="flex justify-between mt-6">
                     {/* Status + Botão Visualizar alinhados */}
                     <div className="flex items-center w-full mb-6">
                       <div className="text-base font-semibold text-[#000000] mr-6">
