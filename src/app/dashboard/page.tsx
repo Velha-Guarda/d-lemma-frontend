@@ -127,7 +127,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Menu */}
-        <div className="w-full px-6">
+        <div className="w-full px-6 flex-1 flex flex-col">
           <div className="mb-6">
             <h3 className="text-white/80 text-sm font-medium mb-4">Menu Principal</h3>
           </div>
@@ -147,7 +147,7 @@ export default function DashboardPage() {
           </nav>
         </div>
         {/* Botão de logout no final do menu */}
-        <div className="mt-auto w-full flex flex-col ml-10 pb-4">
+        <div className="mt-auto w-full flex flex-col ml-12 pb-4">
           <button
             onClick={logout}
             className="w-14 h-14 flex items-center justify-center bg-[#2D4A77] rounded-md hover:bg-[#1A2A4B] transition-colors"

@@ -8,12 +8,14 @@ import { Monitor, Heart, User, Trophy } from "lucide-react"
 import { convidarUsuarioParaChat } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useChat, ChatMessage } from "@/hooks/useChat"
+import { useRouter } from 'next/navigation'
 
 export default function DilemmaDetailPage() {
+  const router = useRouter()
+
   const params = useParams()
   const id = typeof params.id === "string" ? params.id : ""
   if (!id) return <p>Carregando dilema…</p>
-  
   const searchParams = useSearchParams()
   const chat = useChat(id)
 
@@ -26,6 +28,33 @@ export default function DilemmaDetailPage() {
   const [sucessoConvite, setSucessoConvite] = useState<string | null>(null)
   const { user, logout } = useAuth()
 
+  const [closing, setClosing] = useState(false)
+ const [closeError, setCloseError] = useState<string | null>(null)
+
+ const [isClosed, setIsClosed] = useState<boolean | null>(null)
+
+  async function handleCloseDilemma() {
+    setClosing(true)
+    setCloseError(null)
+    try {
+      const token = localStorage.getItem("token") || ""
+      const res = await fetch(`/api/dilemmas/${id}/close`, {
+        method: "PUT",
+        headers: {
+          Authorization: token,
+        },
+      })
+      if (!res.ok) {
+        const err = await res.text()
+        throw new Error(err || `Status ${res.status}`)
+      }
+      router.push("/dashboard")
+    } catch (e: any) {
+      setCloseError(e.message)
+    } finally {
+      setClosing(false)
+    }
+  }
 
   const bottomRef = useRef<HTMLDivElement | null>(null)
 
@@ -42,11 +71,30 @@ export default function DilemmaDetailPage() {
     if (tituloLocal) setTitulo(tituloLocal)
   }, [id, searchParams])
 
+
   useEffect(() => {
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" })
     }
   }, [chat.messages])
+
+  // ► novo useEffect só para buscar isClosed
+useEffect(() => {
+  if (!id) return;
+  const token = localStorage.getItem("token") || "";
+  fetch(`/api/dilemmas/${id}`, {
+    headers: { Authorization: token },
+  })
+    // ► aqui começa a versão com o console.log
+    .then(async res => {
+      if (!res.ok) throw new Error("Falha ao carregar dilema");
+      const d = await res.json();
+      console.log("⮞ dilema payload:", d);
+      return d;
+    })
+  .then((d: any) => setIsClosed(d.closed))
+    .catch(console.error);
+}, [id]);
 
   function handleEnviarMensagem() {
     if (!novaMensagem.trim() || !user?.id || !id) return
@@ -62,7 +110,7 @@ export default function DilemmaDetailPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC]">
+    <div className="flex h-screen bg-[#F8FAFC]">
       {/* Sidebar */}
       <div className="w-80 bg-[#2D4A77] flex flex-col items-center py-8">
         <div className="mb-8 flex flex-col items-center">
@@ -80,13 +128,12 @@ export default function DilemmaDetailPage() {
             <h3 className="text-white/80 text-sm font-medium mb-4">Menu Principal</h3>
           </div>
           <nav className="space-y-3">
-            <button className="flex items-center gap-4 w-full p-3 text-white hover:bg-white/10 rounded-lg transition-colors text-left">
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="flex items-center gap-4 w-full p-3 text-white hover:bg-white/10 rounded-lg transition-colors text-left"
+            >
               <Monitor className="w-5 h-5" />
               <span className="font-medium">dLemmas</span>
-            </button>
-            <button className="flex items-center gap-4 w-full p-3 text-white hover:bg-white/10 rounded-lg transition-colors text-left">
-              <Heart className="w-5 h-5" />
-              <span className="font-medium">Favoritos</span>
             </button>
             <button className="flex items-center gap-4 w-full p-3 text-white hover:bg-white/10 rounded-lg transition-colors text-left">
               <User className="w-5 h-5" />
@@ -114,43 +161,66 @@ export default function DilemmaDetailPage() {
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col h-full">
         <header className="flex items-center justify-between bg-[#1A2A4B] px-12 py-6">
           <h1 className="text-white text-4xl font-extrabold tracking-tight overflow-hidden line-clamp-2 max-h-[3.2em] max-w-[500px]">{titulo}</h1>
-          {user?.role === 'PROFESSOR' && (
+          {user?.role === 'PROFESSOR' && isClosed === false && (
             <div className="flex gap-4">
               {/* Botão de adicionar participantes (mantém) */}
-              <Button className="bg-white text-[#1A2A4B] font-semibold px-6 py-2 rounded-lg shadow hover:bg-gray-100 text-2xl flex items-center gap-3" onClick={() => {
-                setEmailConvite("")
+                <Button
+                  onClick={() => {
+                    setEmailConvite("")
                 setErroConvite(null)
                 setSucessoConvite(null)
-                setModalOpen(true)
-              }}>
-                <span className="flex items-center justify-center w-6 h-6 bg-[#2e4f92] rounded-md">
-                  <span className="text-white text-xl font-bold">+</span>
-                </span>
-                <span className="text-black text-2xl font-extrabold" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                  Adicionar Participantes
-                </span>
-              </Button>
-
+                setModalOpen(true) 
+              }}
+                  className="
+                    bg-white text-[#1A2A4B] font-semibold
+                    px-3 py-1.5 rounded-lg shadow
+                    hover:bg-gray-100 text-lg
+                    flex items-center gap-2
+                  "
+                >
+                  <span className="flex items-center justify-center w-5 h-5 bg-[#2e4f92] rounded-md">
+                    <span className="text-white text-base font-bold leading-none">+</span>
+                  </span>
+                  <span
+                    className="text-black text-lg font-extrabold whitespace-nowrap"
+                    style={{ fontFamily: 'Poppins, sans-serif' }}
+                  >
+                    Participantes
+                  </span>
+                </Button>
               {/* Botão de encerrar dilema (mantém) */}
-              <Button className="bg-white text-[#1A2A4B] font-semibold px-6 py-2 rounded-lg shadow hover:bg-gray-100 text-2xl">
-                <span className="flex items-center justify-center w-6 h-6 bg-[#2e4f92] rounded-md">
-                  <span className="text-white text-xl font-bold">+</span>
-                </span>
-                <span className="text-black text-2xl font-extrabold" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                  Encerrar Dlemma
-                </span>
-              </Button>
+                <Button
+                  onClick={handleCloseDilemma}
+                  disabled={closing}
+                  className="
+                    bg-white text-[#1A2A4B] font-semibold
+                    px-3 py-1.5 rounded-lg shadow
+                    hover:bg-gray-100 text-lg
+                    flex items-center gap-2
+                    disabled:opacity-50
+                  "
+                >
+                  <span className="flex items-center justify-center w-5 h-5 bg-[#2e4f92] rounded-md">
+                    <span className="text-white text-base font-bold leading-none">+</span>
+                  </span>
+                  <span className="text-black text-lg font-extrabold whitespace-nowrap">
+                    {closing ? "Encerrando…" : "Encerrar Dlemma"}
+                  </span>
+                </Button>
+              {closeError && (
+                <p className="text-red-500 text-sm">{"Erro ao encerrar dlemma."}</p>
+              )}
             </div>
           )}
 
         </header>
 
         {/* Chat Area */}
-        <section className="flex flex-col bg-white mx-8 my-6 rounded-lg shadow p-8 max-h-[calc(100vh-200px)]">
-          <div className="flex flex-col overflow-y-auto gap-4 px-4 pb-6 h-full">
+        <section className="flex flex-col bg-white mx-8 my-6 rounded-lg shadow p-8 flex-1 overflow-hidden">
+          <div className="flex flex-col overflow-y-auto gap-4 px-2 pb-2 pt-2 h-full">
             {chat.messages.map((msg, idx) => {
               const isMine = msg.senderId === user?.id || msg.senderId === `${user?.id}`
               return (
@@ -177,8 +247,9 @@ export default function DilemmaDetailPage() {
               value={novaMensagem}
               onChange={e => setNovaMensagem(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') handleEnviarMensagem() }}
+              disabled={isClosed === true}
             />
-            <Button className="ml-4 bg-[#1A2A4B] text-white rounded-full px-6 py-3" onClick={handleEnviarMensagem}>
+            <Button className="ml-4 bg-[#1A2A4B] text-white rounded-full px-6 py-3" onClick={handleEnviarMensagem}disabled={isClosed === true}>
               Enviar
             </Button>
           </div>
