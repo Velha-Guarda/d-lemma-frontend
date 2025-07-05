@@ -1,7 +1,7 @@
 "use client"
 
-import { useSearchParams } from "next/navigation"
-import { useEffect, useState, useCallback, useRef } from "react"
+import { useParams, useSearchParams } from "next/navigation"
+import { useEffect, useState, useRef } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Monitor, Heart, User, Trophy } from "lucide-react"
@@ -9,10 +9,14 @@ import { convidarUsuarioParaChat } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useChat, ChatMessage } from "@/hooks/useChat"
 
-export default function DilemmaDetailPage({ params }: { params?: Promise<{ id: string }> }) {
+export default function DilemmaDetailPage() {
+  const params = useParams()
+  const id = typeof params.id === "string" ? params.id : ""
+  if (!id) return <p>Carregando dilema…</p>
+  
   const searchParams = useSearchParams()
-  const getParams = useCallback(async () => (params ? await params : undefined), [params])
-  const [id, setId] = useState<string | undefined>(undefined)
+  const chat = useChat(id)
+
   const [titulo, setTitulo] = useState<string>("Título Dilemma")
   const [novaMensagem, setNovaMensagem] = useState("")
   const [modalOpen, setModalOpen] = useState(false)
@@ -21,13 +25,10 @@ export default function DilemmaDetailPage({ params }: { params?: Promise<{ id: s
   const [erroConvite, setErroConvite] = useState<string | null>(null)
   const [sucessoConvite, setSucessoConvite] = useState<string | null>(null)
   const { user, logout } = useAuth()
-  const { messages, sendMessage } = useChat(id || "")
+
 
   const bottomRef = useRef<HTMLDivElement | null>(null)
 
-  useEffect(() => {
-    getParams().then(p => setId(p?.id))
-  }, [getParams])
 
   useEffect(() => {
     if (!id) return
@@ -45,7 +46,7 @@ export default function DilemmaDetailPage({ params }: { params?: Promise<{ id: s
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" })
     }
-  }, [messages])
+  }, [chat.messages])
 
   function handleEnviarMensagem() {
     if (!novaMensagem.trim() || !user?.id || !id) return
@@ -56,7 +57,7 @@ export default function DilemmaDetailPage({ params }: { params?: Promise<{ id: s
       dilemmaId: `${id}`
     }
 
-    sendMessage(msg)
+    chat.sendMessage(msg)
     setNovaMensagem("")
   }
 
@@ -150,7 +151,7 @@ export default function DilemmaDetailPage({ params }: { params?: Promise<{ id: s
         {/* Chat Area */}
         <section className="flex flex-col bg-white mx-8 my-6 rounded-lg shadow p-8 max-h-[calc(100vh-200px)]">
           <div className="flex flex-col overflow-y-auto gap-4 px-4 pb-6 h-full">
-            {messages.map((msg, idx) => {
+            {chat.messages.map((msg, idx) => {
               const isMine = msg.senderId === user?.id || msg.senderId === `${user?.id}`
               return (
                 <div key={idx} className={`flex ${isMine ? "justify-end" : "justify-start"} flex-col`}>

@@ -10,6 +10,7 @@ export type ChatMessage = {
 }
 
 export function useChat(dilemmaId: string) {
+  console.log("🧠 useChat foi chamado com:", dilemmaId)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const clientRef = useRef<StompJs.Client | null>(null)
   const subscriptionRef = useRef<StompJs.StompSubscription | null>(null)
@@ -46,7 +47,10 @@ export function useChat(dilemmaId: string) {
       return
     }
 
-    const sock = new SockJS(`${process.env.NEXT_PUBLIC_API_URL}/ws`)
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
+    const sockUrl = `${baseUrl.replace(/\/$/, "")}/ws`
+    const sock = new SockJS(sockUrl)
+
     const client = new StompJs.Client({
       webSocketFactory: () => sock,
       reconnectDelay: 5000,
