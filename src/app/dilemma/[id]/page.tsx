@@ -8,12 +8,14 @@ import { Monitor, Heart, User, Trophy } from "lucide-react"
 import { convidarUsuarioParaChat } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { useChat, ChatMessage } from "@/hooks/useChat"
+import { useRouter } from 'next/navigation'
 
 export default function DilemmaDetailPage() {
+  const router = useRouter()
+
   const params = useParams()
   const id = typeof params.id === "string" ? params.id : ""
   if (!id) return <p>Carregando dilema…</p>
-  
   const searchParams = useSearchParams()
   const chat = useChat(id)
 
@@ -62,7 +64,7 @@ export default function DilemmaDetailPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC]">
+    <div className="flex h-screen bg-[#F8FAFC]">
       {/* Sidebar */}
       <div className="w-80 bg-[#2D4A77] flex flex-col items-center py-8">
         <div className="mb-8 flex flex-col items-center">
@@ -80,13 +82,12 @@ export default function DilemmaDetailPage() {
             <h3 className="text-white/80 text-sm font-medium mb-4">Menu Principal</h3>
           </div>
           <nav className="space-y-3">
-            <button className="flex items-center gap-4 w-full p-3 text-white hover:bg-white/10 rounded-lg transition-colors text-left">
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="flex items-center gap-4 w-full p-3 text-white hover:bg-white/10 rounded-lg transition-colors text-left"
+            >
               <Monitor className="w-5 h-5" />
               <span className="font-medium">dLemmas</span>
-            </button>
-            <button className="flex items-center gap-4 w-full p-3 text-white hover:bg-white/10 rounded-lg transition-colors text-left">
-              <Heart className="w-5 h-5" />
-              <span className="font-medium">Favoritos</span>
             </button>
             <button className="flex items-center gap-4 w-full p-3 text-white hover:bg-white/10 rounded-lg transition-colors text-left">
               <User className="w-5 h-5" />
@@ -114,7 +115,7 @@ export default function DilemmaDetailPage() {
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col h-full">
         <header className="flex items-center justify-between bg-[#1A2A4B] px-12 py-6">
           <h1 className="text-white text-4xl font-extrabold tracking-tight overflow-hidden line-clamp-2 max-h-[3.2em] max-w-[500px]">{titulo}</h1>
           {user?.role === 'PROFESSOR' && (
@@ -149,8 +150,8 @@ export default function DilemmaDetailPage() {
         </header>
 
         {/* Chat Area */}
-        <section className="flex flex-col bg-white mx-8 my-6 rounded-lg shadow p-8 max-h-[calc(100vh-200px)]">
-          <div className="flex flex-col overflow-y-auto gap-4 px-4 pb-6 h-full">
+        <section className="flex flex-col bg-white mx-8 my-6 rounded-lg shadow p-8 flex-1 overflow-hidden">
+          <div className="flex flex-col overflow-y-auto gap-4 px-2 pb-2 pt-2 h-full">
             {chat.messages.map((msg, idx) => {
               const isMine = msg.senderId === user?.id || msg.senderId === `${user?.id}`
               return (

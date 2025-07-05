@@ -10,7 +10,6 @@ export type ChatMessage = {
 }
 
 export function useChat(dilemmaId: string) {
-  console.log("🧠 useChat foi chamado com:", dilemmaId)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const clientRef = useRef<StompJs.Client | null>(null)
   const subscriptionRef = useRef<StompJs.StompSubscription | null>(null)
