@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Heart, User, Monitor, Trophy } from "lucide-react"
 import { listarDilemasUsuario, DilemmaStatusResponseDTO, criarDilema, responderConvite } from "@/lib/api"
 import Link from "next/link"
+import { Filter } from "lucide-react"
 
 export default function DashboardPage() {
   const { user, isLoading, isAuthenticated, logout } = useAuth()
@@ -17,6 +18,13 @@ export default function DashboardPage() {
   const [criando, setCriando] = useState(false)
   const [erroCriar, setErroCriar] = useState<string | null>(null)
   const [sucessoCriar, setSucessoCriar] = useState<string | null>(null)
+
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [filterInvitationStatus, setFilterInvitationStatus] = useState<"" | "PENDING" | "ACCEPTED" | "DECLINED">("")
+  const [filterClosed, setFilterClosed] = useState<"" | "open" | "closed">("")
+  // → novos estados de rascunho
+  const [draftInvitationStatus, setDraftInvitationStatus] = useState(filterInvitationStatus)
+  const [draftClosed, setDraftClosed] = useState(filterClosed)
 
   useEffect(() => {
     // Se quiser forçar redirecionamento para /login, descomente:
@@ -71,6 +79,18 @@ export default function DashboardPage() {
       </div>
     )
   }
+  // aplica os dois filtros sobre a lista original
+const filteredDilemmas = dilemas.filter(d => {
+  // 1) status do convite
+  if (filterInvitationStatus && d.invitationStatus !== filterInvitationStatus) {
+    return false
+  }
+  // 2) aberto / encerrado
+  if (filterClosed === "open"   && d.isClosed)   return false
+  if (filterClosed === "closed" && !d.isClosed) return false
+
+  return true
+})
 
   const openModal = () => setIsModalOpen(true)
   const closeModal = () => {
@@ -178,8 +198,8 @@ export default function DashboardPage() {
         {/* Conteúdo do Dashboard */}
         <div className="relative z-10 p-20 mt-10">
           {/* Header */}
-          <div className="flex items-center mb-8">
-            <h1 className="text-white text-6xl font-bold drop-shadow-lg mr-10">Seus dLemmas</h1>
+          <div className="flex items-center mb-6 space-x-4">
+            <h1 className="text-white text-6xl font-bold drop-shadow-lg mr-6">Seus dLemmas</h1>
             {user?.role === 'PROFESSOR' && (
               <Button
                 onClick={openModal}
@@ -191,6 +211,19 @@ export default function DashboardPage() {
                 <span className="text-black text-2xl font-extrabold" style={{ fontFamily: 'Poppins, sans-serif' }}>Novo Dilema</span>
               </Button>
             )}
+            {/* Botão Filtrar disponível para todos */}
+            <Button
+              onClick={() => {
+                // inicializa o draft com o filtro atual
+                setDraftInvitationStatus(filterInvitationStatus);
+                setDraftClosed(filterClosed);
+                setFilterOpen(true);
+              }}
+              className="bg-white text-[#2D4A6B] hover:bg-gray-100 px-6 text-2xl h-12 flex items-center gap-2"
+            >
+              <Filter className="w-6 h-6 text-[#2e4f92]" />
+              <span className="text-black font-extrabold">Filtrar</span>
+             </Button>
           </div>
 
           {/* Grid de Dilemas */}
@@ -202,7 +235,7 @@ export default function DashboardPage() {
             ) : dilemas.length === 0 ? (
               <div className="col-span-3 text-center text-white text-xl">Nenhum dilema encontrado.</div>
             ) : (
-              dilemas.map((dilema) => (
+              filteredDilemmas.map((dilema) => (
                 <div key={dilema.idDilemma} className="bg-white rounded-xl p-6 shadow-lg relative">
                   {/* Dilema Title + Heart Icon alinhados */}
                   <div className="flex items-center justify-between mb-4">
@@ -214,7 +247,7 @@ export default function DashboardPage() {
                       <div className="text-base font-semibold text-[#000000] mr-6">
                         Status: {dilema.invitationStatus === 'ACCEPTED'
                           ? 'Aceito'
-                          : dilema.invitationStatus === 'REJECTED'
+                          : (dilema.invitationStatus === 'REJECTED' || dilema.invitationStatus === 'DECLINED')
                             ? 'Rejeitado'
                             : dilema.invitationStatus === 'PENDING'
                               ? 'Pendente'
@@ -230,7 +263,7 @@ export default function DashboardPage() {
                       )}
                     </div>
                     {/* Botões Aceitar/Recusar */}
-                    {dilema.invitationStatus !== 'ACCEPTED' && (
+                    {dilema.invitationStatus === 'PENDING' && (
                       <div className="flex flex-col gap-2 justify-end items-end">
                         <Button
                           className="bg-green-600 hover:bg-green-700 text-white text-1xl px-4 py-2 w-28 h-9"
@@ -471,7 +504,65 @@ export default function DashboardPage() {
           </div>
         )}
         {/* ================================================ */}
+        {/* ——— MODAL DE FILTRO ——— */}
+{filterOpen && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="bg-white p-6 rounded-xl border-4 border-[#2D4A77] w-[400px]">
+      <h2 className="text-2xl font-bold mb-4">Filtrar dLemmas</h2>
+
+      {/* Status do Convite */}
+      <label className="block mb-3">
+        <span className="font-medium">Status do Convite</span>
+        <select
+          value={draftInvitationStatus}
+          onChange={e => setDraftInvitationStatus(e.target.value as any)}
+          className="mt-1 block w-full border rounded p-2"
+        >
+          <option value="">Todos</option>
+          <option value="PENDING">Pendente</option>
+          <option value="ACCEPTED">Aceito</option>
+          <option value="DECLINED">Recusado</option>
+        </select>
+      </label>
+
+      {/* Aberto / Encerrado */}
+      <label className="block mb-6">
+        <span className="font-medium">Situação</span>
+        <select
+          value={draftClosed}
+          onChange={e => setDraftClosed(e.target.value as any)}
+          className="mt-1 block w-full border rounded p-2"
+        >
+          <option value="">Todos</option>
+          <option value="open">Aberto</option>
+          <option value="closed">Encerrado</option>
+        </select>
+      </label>
+
+      <div className="flex justify-end gap-3">
+        <Button
+          onClick={() => setFilterOpen(false)}
+          className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded-lg"
+        >
+          Cancelar
+        </Button>
+        <Button
+          onClick={() => {
+            setFilterInvitationStatus(draftInvitationStatus)
+            setFilterClosed(draftClosed)
+            setFilterOpen(false)
+            }}
+          className="bg-[#2D4A77] hover:bg-[#1e3d62] text-white px-4 py-2 rounded-lg"
+        >
+          Aplicar
+        </Button>
       </div>
     </div>
+  </div>
+)}
+
+      </div>
+    </div>
+    
   )
 }
