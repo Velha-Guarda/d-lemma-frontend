@@ -5,10 +5,9 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Heart, User, Monitor, Trophy } from "lucide-react"
+import { Filter, Monitor, User, Trophy } from "lucide-react"
 import { listarDilemasUsuario, DilemmaStatusResponseDTO, criarDilema, responderConvite } from "@/lib/api"
 import Link from "next/link"
-import { Filter } from "lucide-react"
 
 export default function DashboardPage() {
   const { user, isLoading, isAuthenticated, logout } = useAuth()
@@ -283,6 +282,7 @@ const filteredDilemmas = dilemas.filter(d => {
                                 .catch((err) => setErroDilemas(err instanceof Error ? err.message : 'Erro ao buscar dilemas'))
                                 .finally(() => setLoadingDilemas(false))
                             } catch (err) {
+                              console.log(err)
                               // Reverte se falhar
                               setDilemas((prev) => prev.map((d) => d.idDilemma === dilema.idDilemma ? { ...d, invitationStatus: 'PENDING' } : d))
                               setErroConviteId(dilema.idDilemma)
@@ -312,6 +312,7 @@ const filteredDilemmas = dilemas.filter(d => {
                             } catch (err) {
                               setDilemas((prev) => prev.map((d) => d.idDilemma === dilema.idDilemma ? { ...d, invitationStatus: 'PENDING' } : d))
                               setErroConviteId(dilema.idDilemma)
+                              console.log(err)
                             } finally {
                               setLoadingConviteId(null)
                             }
@@ -515,7 +516,7 @@ const filteredDilemmas = dilemas.filter(d => {
         <span className="font-medium">Status do Convite</span>
         <select
           value={draftInvitationStatus}
-          onChange={e => setDraftInvitationStatus(e.target.value as any)}
+          onChange={e => setDraftInvitationStatus(e.target.value as "" | "PENDING" | "ACCEPTED" | "DECLINED")}
           className="mt-1 block w-full border rounded p-2"
         >
           <option value="">Todos</option>
@@ -530,7 +531,7 @@ const filteredDilemmas = dilemas.filter(d => {
         <span className="font-medium">Situação</span>
         <select
           value={draftClosed}
-          onChange={e => setDraftClosed(e.target.value as any)}
+          onChange={e => setDraftClosed(e.target.value as "" | "open" | "closed")}
           className="mt-1 block w-full border rounded p-2"
         >
           <option value="">Todos</option>
