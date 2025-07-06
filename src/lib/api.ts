@@ -236,3 +236,30 @@ export async function convidarUsuarioParaChat({ email, chatId }: { email: string
   });
   return res as { success: boolean };
 } 
+
+export interface ParticipantDTO {
+  userId: string
+  userName: string
+  email: string
+  invitationStatus: string
+  joinedAt: string
+  score: number
+}
+
+export async function listParticipants(dilemmaId: number): Promise<ParticipantDTO[]> {
+  const token = localStorage.getItem("token") || ""
+  const res = await fetch(`/api/dilemmas/${dilemmaId}/participants`, {
+    headers: { Authorization: token }
+  })
+  if (!res.ok) throw new Error("Erro ao listar participantes")
+  return res.json()
+}
+
+export async function removeParticipant(dilemmaId: number, userId: string): Promise<void> {
+  const token = localStorage.getItem("token") || ""
+  const res = await fetch(
+    `/api/dilemmas/${dilemmaId}/participants/${userId}`,
+    { method: "DELETE", headers: { Authorization: token } }
+  )
+  if (!res.ok) throw new Error("Erro ao remover participante")
+}
