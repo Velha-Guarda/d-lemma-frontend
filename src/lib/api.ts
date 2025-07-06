@@ -21,55 +21,55 @@ function getApiUrl(endpoint: string): string {
 }
 
 // Função para fazer o cadastro de usuário
-export async function cadastrarUsuario(dados: CadastroUsuario): Promise<Usuario> {
-  // Garantir que o role seja mantido
-  const role = dados.role || "STUDENT";
-  console.log("Role original no cadastro:", role);
-  
-  // Mapeando os nomes dos campos para o formato esperado pelo backend
-  const dadosParaEnvio = {
-    name: dados.name,
-    email: dados.email,
-    password: dados.password,
-    graduation: dados.graduation,
-    role: role
-  };
-  
-  console.log('Dados para envio:', dadosParaEnvio);
-  
-  // Usando a URL apropriada para o ambiente
-  const response = await fetch(getApiUrl('/auth/register'), {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(dadosParaEnvio)
-  });
+  export async function cadastrarUsuario(dados: CadastroUsuario): Promise<Usuario> {
+    // Garantir que o role seja mantido
+    const role = dados.role || "STUDENT";
+    console.log("Role original no cadastro:", role);
+    
+    // Mapeando os nomes dos campos para o formato esperado pelo backend
+    const dadosParaEnvio = {
+      name: dados.name,
+      email: dados.email,
+      password: dados.password,
+      graduation: dados.graduation,
+      role: role
+    };
+    
+    console.log('Dados para envio:', dadosParaEnvio);
+    
+    // Usando a URL apropriada para o ambiente
+    const response = await fetch(getApiUrl('/auth/register'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(dadosParaEnvio)
+    });
 
-  if (!response.ok) {
-    try {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Erro ao cadastrar usuário");
-    } catch {
-      // Se não conseguir analisar a resposta como JSON
-      const text = await response.text().catch(() => "");
-      console.error("Resposta não-JSON:", text);
-      throw new Error("Erro ao conectar com o servidor");
+    if (!response.ok) {
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Erro ao cadastrar usuário");
+      } catch {
+        // Se não conseguir analisar a resposta como JSON
+        const text = await response.text().catch(() => "");
+        console.error("Resposta não-JSON:", text);
+        throw new Error("Erro ao conectar com o servidor");
+      }
     }
-  }
 
-  const userData = await response.json();
-  console.log("Resposta da API após cadastro:", userData);
-  console.log("Role na resposta da API:", userData.role);
-  
-  // Se o cadastro retornar um token, armazenar
-  if (userData.token) {
-    localStorage.setItem('authToken', userData.token);
-    localStorage.setItem('userData', JSON.stringify(userData));
-  }
+    const userData = await response.json();
+    console.log("Resposta da API após cadastro:", userData);
+    console.log("Role na resposta da API:", userData.role);
+    
+    // Se o cadastro retornar um token, armazenar
+    if (userData.token) {
+      localStorage.setItem('authToken', userData.token);
+      localStorage.setItem('userData', JSON.stringify(userData));
+    }
 
-  return userData;
-}
+    return userData;
+  }
 
 // Função para fazer login
 export async function loginUsuario(dados: {
